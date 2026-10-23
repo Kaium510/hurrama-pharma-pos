@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hurrama Pharma POS</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F6F4;--card:#fff;--ink:#12231E;--mut:#5B6E67;--line:#D6E0DB;--pri:#0E5A4C;--onpri:#fff;--pri2:#E3F0EC;--warn:#8A5200;--warnbg:#FBEFD5;--bad:#B42318;--badbg:#FBE4E1;--ok:#146C43;--okbg:#DDF1E6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1815;--card:#152420;--ink:#E4EFEA;--mut:#96ABA3;--line:#29403A;--pri:#4CC2A5;--onpri:#06201A;--pri2:#1B3A33;--warn:#F0B34F;--warnbg:#3A2E12;--bad:#FF8A7E;--badbg:#3F1C19;--ok:#6ED39C;--okbg:#173A2A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1815;--card:#152420;--ink:#E4EFEA;--mut:#96ABA3;--line:#29403A;--pri:#4CC2A5;--onpri:#06201A;--pri2:#1B3A33;--warn:#F0B34F;--warnbg:#3A2E12;--bad:#FF8A7E;--badbg:#3F1C19;--ok:#6ED39C;--okbg:#173A2A;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 'Hind Siliguri',system-ui,'Noto Sans Bengali','Segoe UI',sans-serif;padding-bottom:76px}
+small{display:block;color:var(--mut);font-size:13px;line-height:1.35}
+header{background:var(--pri);color:var(--onpri);display:flex;align-items:center;gap:16px;padding:12px 16px}
+.brand{font-size:21px;font-weight:700;letter-spacing:.2px;line-height:1.1}
+.brand small{color:inherit;opacity:.8;font-weight:500}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mut);font:600 15px inherit;font-family:inherit;padding:14px 4px;cursor:pointer}
+nav button[aria-selected=true]{color:var(--pri);box-shadow:inset 0 3px 0 var(--pri)}
+main{max-width:1100px;margin:0 auto;padding:14px}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+h2{font-size:18px;margin:0 0 10px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+label span{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.btn{font:600 16px inherit;font-family:inherit;border:0;border-radius:8px;background:var(--pri);color:var(--onpri);padding:12px 18px;min-height:46px;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.s{background:var(--pri2);color:var(--pri)}
+.btn.w{width:100%;font-size:18px}
+.pos{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:860px){.pos{grid-template-columns:1.1fr 1fr;align-items:start}}
+.rs{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 4px;cursor:pointer}
+.rs>span:last-child{text-align:right;white-space:nowrap}
+.rs:hover{background:var(--pri2)}
+.ln{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:18px;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.row.big{font-size:22px;font-weight:700;color:var(--pri)}
+.empty{color:var(--mut);margin:8px 0}
+.tag{display:inline-block;border-radius:99px;padding:2px 10px;font-size:13px;font-weight:600;white-space:nowrap}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.warn{background:var(--warnbg);color:var(--warn)}.tag.bad{background:var(--badbg);color:var(--bad)}
+.bt{font-size:13px;color:var(--mut)}.bt.x{color:var(--bad)}
+table.t{width:100%;border-collapse:collapse}
+table.t th{text-align:left;font-size:13px;color:var(--mut);padding:6px 8px;border-bottom:1px solid var(--line)}
+table.t td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+@media(max-width:720px){table.t thead{display:none}table.t tr{display:block;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;padding:6px 10px}table.t td{display:flex;justify-content:space-between;gap:12px;border:0;padding:3px 0}table.t td[data-l]::before{content:attr(data-l);color:var(--mut);flex:none}}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.kpi b{font-size:24px;display:block;line-height:1.2}
+.kpi.pf{background:var(--pri2);border-color:var(--pri)}
+.neg{color:var(--bad)}
+.rc{border:1px dashed var(--line);border-radius:8px;padding:10px;margin-top:12px;font-size:14px}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;max-width:90%}
+#toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}}
+.lg{margin-left:auto;display:flex;border:1px solid rgba(255,255,255,.5);border-radius:8px;overflow:hidden}
+.lg button{background:none;border:0;color:var(--onpri);font:600 14px inherit;font-family:inherit;padding:6px 12px;cursor:pointer;opacity:.75}
+.lg button[aria-pressed=true]{background:rgba(255,255,255,.2);opacity:1}
+@media(min-width:860px){.lg{margin-left:0}}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:4px 12px;margin:3px;cursor:pointer}.chip:hover{background:var(--pri2)}#chips hr{border:0;border-top:1px solid var(--line);margin:8px 0}.gh td{background:var(--pri2);color:var(--pri)}
+body.locked main,body.locked nav{display:none}body:not(.locked) #auth{display:none}body.cashier nav button:not([data-t=pos]),body.cashier #drow,body.locked #out{display:none}.lo{background:none;border:1px solid rgba(255,255,255,.5);color:var(--onpri);border-radius:8px;padding:6px 12px;font:600 14px inherit;font-family:inherit;cursor:pointer}textarea{width:100%;min-height:150px;font:13px/1.4 ui-monospace,Consolas,monospace;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.qi{width:76px;min-height:36px;text-align:center;padding:4px}
+nav{overflow-x:auto}nav button{flex:1 0 auto;white-space:nowrap;padding-left:10px;padding-right:10px}
+.th{width:44px;height:44px;object-fit:cover;border-radius:8px;float:left;margin-right:10px}#fpv{width:64px;height:64px;margin-top:6px}
+.dx{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.dx>div{flex:1;min-width:0}.dx .th{float:none;flex:none}
+@page{margin:4mm}
+@media print{body *{visibility:hidden}#rcpt,#rcpt *{visibility:visible}#rcpt{position:absolute;left:0;top:0;width:72mm}#prt{display:none}.rc{border:0}}
+@media(min-width:860px){body{padding-bottom:0}nav{position:static;border:0;background:none;margin-left:auto;padding:0}nav button{color:var(--onpri);opacity:.75;padding:10px 16px;border-radius:8px;flex:none}nav button[aria-selected=true]{opacity:1;background:rgba(255,255,255,.16);box-shadow:none;color:var(--onpri)}#toast{bottom:24px}}
+</style></head>
+<body>
+<header><div class="brand">Hurrama Pharma<small>বিক্রয় ও স্টক ব্যবস্থাপনা</small></div>
+<nav id="nav" role="tablist"><button data-t="pos" aria-selected="true">বিক্রি</button><button data-t="stock" aria-selected="false">স্টক</button><button data-t="buy" aria-selected="false">ক্রয়</button><button data-t="exp" aria-selected="false">খরচ</button><button data-t="acc" aria-selected="false">হিসাব</button><button data-t="dix" aria-selected="false">ওষুধ তথ্য</button><button data-t="exr" aria-selected="false">মেয়াদ রিপোর্ট</button><button data-t="ret" aria-selected="false">ফেরত</button><button data-t="users" aria-selected="false">ইউজার</button></nav><div class="lg" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">English</button><button data-lang="bn" aria-pressed="false">বাংলা</button></div><button class="lo" id="out">লগ আউট</button></header>
+<div id="auth" class="card" style="max-width:380px;margin:40px auto 0"><form id="af"><h2 id="at">সাইন ইন</h2><div class="g" style="grid-template-columns:1fr"><label><span>ইউজারনেম</span><input id="au" autocomplete="username" required></label><label><span>পাসওয়ার্ড</span><input id="ap" type="password" autocomplete="current-password" required></label><label id="ap2r" hidden><span>পাসওয়ার্ড আবার লিখুন</span><input id="ap2" type="password" autocomplete="new-password"></label></div><p id="amsg" class="neg" role="alert"></p><button class="btn w" id="ab" type="submit">সাইন ইন</button></form></div>
+<main>
+
+<section class="pg on" id="pos"><div class="pos">
+<div class="card"><h2>ওষুধ খুঁজুন বা বারকোড স্ক্যান করুন</h2>
+<input id="q" type="search" placeholder="নাম, জেনেরিক বা বারকোড লিখুন, তারপর Enter চাপুন" autocomplete="off" inputmode="search">
+<div id="res"></div><small style="margin-top:8px">টিপ: স্ক্যানের আগে 100* লিখলে ১০০টি যোগ হবে। অথবা স্ক্যানের পর Enter চেপে পরিমাণ লিখুন।</small></div>
+<div class="card"><h2>বর্তমান বিল</h2><div id="lines"></div>
+<div class="row"><span>উপমোট</span><b id="sub">৳০</b></div>
+<div class="row" id="drow"><span>ছাড় (৳)</span><input id="disc" type="number" min="0" inputmode="decimal" style="width:120px"></div>
+<div class="row big"><span>মোট</span><span id="tot">৳০</span></div>
+<button class="btn w" id="pay" disabled>বিক্রি সম্পন্ন করুন</button>
+<div id="rcpt"></div></div>
+</div></section>
+
+<section class="pg" id="stock">
+<div class="card"><h2>ক্যাটালগ থেকে খুঁজে যোগ করুন</h2><input id="cq" type="search" placeholder="নাম বা কাজ লিখুন, যেমন paracetamol, জ্বর, fever, ডায়াবেটিস" autocomplete="off"><div id="cr"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0"><label class="btn s" for="bigf" style="display:inline-flex;align-items:center;cursor:pointer">বড় তালিকা (CSV) আমদানি করুন</label><input id="bigf" type="file" accept=".csv,.txt,.tsv" hidden><button class="btn s" id="bigx" type="button">আমদানি করা তালিকা মুছুন</button></div><small id="bign"></small><small style="margin-top:8px">ক্যাটালগে সাধারণ জেনেরিক নাম ও ফার্মেসির পণ্য আছে, ব্র্যান্ডের নাম নেই। একটি বেছে নিলে নিচের ফর্ম ভরে যায়। তারপর বারকোড স্ক্যান করে ব্যাচ, মেয়াদ, দাম ও পরিমাণ লিখে সংরক্ষণ করুন।</small></div>
+<details class="card"><summary><b>একসঙ্গে অনেক ওষুধ যোগ করুন</b></summary><div style="margin-top:12px"><div class="g"><label><span>কোম্পানি</span><input id="bco" list="cl" autocomplete="off"></label><label><span>বিভাগ</span><select id="bcat"></select></label></div><small style="margin-bottom:8px">প্রতি লাইনে একটি ওষুধ: নাম, জেনেরিক, বারকোড, বিক্রয়মূল্য, ব্যাচ, মেয়াদ (YYYY-MM-DD), ক্রয়মূল্য, পরিমাণ। Excel বা Google Sheets থেকে কপি করে পেস্ট করুন।</small><textarea id="bta" spellcheck="false" placeholder="Napa 500 mg,Paracetamol,8901001000011,2,N2501,2027-12-31,1.4,500"></textarea><div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0"><button class="btn" id="bgo" type="button">ওষুধগুলো যোগ করুন</button><label class="btn s" for="bfile" style="display:inline-flex;align-items:center;cursor:pointer">ফাইল থেকে নিন (CSV)</label><input id="bfile" type="file" accept=".csv,.txt" hidden><button class="btn s" id="btp" type="button">টেমপ্লেট ডাউনলোড</button></div><div id="bres" role="status"></div></div></details>
+<details class="card"><summary><b>নতুন ওষুধ যোগ করুন</b></summary>
+<form id="fm" style="margin-top:12px">
+<div class="g">
+<label><span>ওষুধের নাম</span><input name="name" required></label>
+<label><span>জেনেরিক নাম</span><input name="gen"></label>
+<label><span>কোম্পানি</span><input name="co" list="cl" autocomplete="off"></label>
+<label><span>বিভাগ</span><select name="cat" id="fcat"></select></label><datalist id="cl"></datalist>
+<label><span>বারকোড</span><input name="bc" id="fbc" required inputmode="numeric"></label>
+<label><span>বিক্রয়মূল্য প্রতি পিস (৳)</span><input name="price" type="number" step="0.01" min="0" required></label>
+</div>
+<div class="g">
+<label><span>ব্যাচ নম্বর</span><input name="no" required></label>
+<label><span>মেয়াদ শেষের তারিখ</span><input name="exp" type="date" required></label>
+<label><span>ক্রয়মূল্য প্রতি পিস (৳)</span><input name="cost" type="number" step="0.01" min="0" required></label>
+<label><span>পরিমাণ (পিস)</span><input name="qty" type="number" min="1" required></label>
+</div>
+<button class="btn" type="submit">ওষুধ সংরক্ষণ করুন</button>
+<button class="btn s" type="button" id="gen">বারকোড তৈরি করুন</button>
+</form></details>
+<details class="card" open><summary><b>বিভাগ ও কোম্পানি</b></summary><div class="g" style="margin:12px 0"><label><span>বিভাগ</span><select id="fk"></select></label><label><span>কোম্পানি</span><select id="fc"></select></label></div><div id="chips"></div></details>
+<div class="card"><h2>কম স্টকের সীমা</h2><div class="g"><label><span>সব আইটেমের জন্য সীমা: এত পিস বা তার কম হলে কম স্টক ধরা হবে</span><input id="lowg" type="number" min="0" inputmode="numeric"></label></div><small id="lown" style="margin-bottom:8px"></small><small>প্রতিটি আইটেমের আলাদা সীমা নিচের তালিকায় তার সারিতে দিতে পারেন। ফাঁকা থাকলে সাধারণ সীমা ধরা হবে।</small><label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input id="lowo" type="checkbox" style="width:auto;min-height:0"><span style="margin:0;font-size:15px;color:var(--ink)">শুধু কম স্টক দেখান</span></label></div>
+<div class="card"><input id="sq" type="search" placeholder="স্টকে খুঁজুন" style="margin-bottom:10px">
+<table class="t"><thead><tr><th>ওষুধ</th><th>বারকোড</th><th>বিক্রয়মূল্য</th><th>মোট স্টক</th><th>ব্যাচ ও মেয়াদ</th><th>অবস্থা</th></tr></thead><tbody id="stk"></tbody></table></div>
+</section>
+
+<section class="pg" id="buy">
+<div class="card"><h2>ক্রয় যোগ করুন</h2>
+<form id="fb"><div class="g">
+<label><span>বারকোড স্ক্যান</span><input id="bb" inputmode="numeric" placeholder="স্ক্যান করে Enter চাপুন"></label>
+<label><span>ওষুধ</span><select id="bm" name="m" required></select></label>
+<label><span>ব্যাচ নম্বর</span><input name="no" required></label>
+<label><span>মেয়াদ শেষের তারিখ</span><input name="exp" type="date" required></label>
+<label><span>ক্রয়মূল্য প্রতি পিস (৳)</span><input name="cost" type="number" step="0.01" min="0" required></label>
+<label><span>পরিমাণ (পিস)</span><input name="qty" type="number" min="1" required></label>
+<label><span>নতুন বিক্রয়মূল্য (ঐচ্ছিক)</span><input name="price" type="number" step="0.01" min="0"></label>
+</div><button class="btn" type="submit">ক্রয় সংরক্ষণ করুন</button></form></div>
+<div class="card"><h2>সাম্প্রতিক ক্রয়</h2><table class="t"><thead><tr><th>তারিখ</th><th>ওষুধ</th><th>ব্যাচ</th><th>পরিমাণ</th><th>মোট</th></tr></thead><tbody id="bl"></tbody></table></div>
+</section>
+
+<section class="pg" id="exp">
+<div class="card"><h2>খরচ যোগ করুন</h2>
+<form id="fe"><div class="g">
+<label><span>খাত</span><select name="cat"><option value="দোকান ভাড়া">দোকান ভাড়া</option><option value="কর্মচারীর বেতন">কর্মচারীর বেতন</option><option value="বিদ্যুৎ ও পানি">বিদ্যুৎ ও পানি</option><option value="পরিবহন">পরিবহন</option><option value="লাইসেন্স ও ফি">লাইসেন্স ও ফি</option><option value="অন্যান্য">অন্যান্য</option></select></label>
+<label><span>পরিমাণ (৳)</span><input name="amt" type="number" min="1" step="0.01" required></label>
+<label><span>বিবরণ</span><input name="note"></label>
+</div><button class="btn" type="submit">খরচ সংরক্ষণ করুন</button></form></div>
+<div class="card"><h2>খরচের তালিকা</h2><table class="t"><thead><tr><th>তারিখ</th><th>খাত</th><th>বিবরণ</th><th>পরিমাণ</th><th></th></tr></thead><tbody id="el"></tbody></table></div>
+</section>
+
+<section class="pg" id="acc">
+<div class="card"><label><span>সময়কাল</span><select id="rg"><option value="day">আজ</option><option value="month">এই মাস</option><option value="all">সব সময়</option></select></label></div>
+<div class="kp" id="kp"></div>
+<div class="card"><h2>সাম্প্রতিক বিক্রি</h2><table class="t"><thead><tr><th>বিল</th><th>সময়</th><th>পণ্য</th><th>মোট</th><th>লাভ</th></tr></thead><tbody id="sl"></tbody></table></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn s" id="bk">ব্যাকআপ ডাউনলোড করুন</button><label class="btn s" for="rf" style="display:inline-flex;align-items:center;cursor:pointer">ব্যাকআপ থেকে ফিরিয়ে আনুন</label><input id="rf" type="file" accept=".json" hidden><button class="btn s" id="rs">ডেমো ডেটা মুছে খালি শুরু করুন</button></div>
+</section>
+<section class="pg" id="dix"><div class="card"><h2>ওষুধ খুঁজুন (নাম বা কাজ)</h2><input id="dq" type="search" placeholder="নাম, কোম্পানি বা কাজ লিখুন, যেমন paracetamol, জ্বর, acidity" autocomplete="off"><div id="dch" style="margin-top:8px"></div><div id="dr"></div><small style="margin-top:8px">সংক্ষিপ্ত সাধারণ তথ্য, চিকিৎসা পরামর্শ নয়। ডোজ বা রোগীকে পরামর্শ দেওয়ার আগে প্যাকেটের লেবেল বা নির্ভরযোগ্য ড্রাগ রেফারেন্স দেখুন।</small></div></section>
+<section class="pg" id="exr"><div class="card"><h2>মেয়াদ রিপোর্ট</h2><div class="g"><label><span>এই তারিখ বা তার আগে মেয়াদ শেষ হবে</span><input type="date" id="xd"></label><label style="display:flex;gap:8px;align-items:center"><input id="xi" type="checkbox" checked style="width:auto;min-height:0"><span style="margin:0;font-size:15px;color:var(--ink)">মেয়াদোত্তীর্ণগুলোও দেখান</span></label></div><div id="xq"><button class="chip" data-x="-1">মেয়াদোত্তীর্ণ</button><button class="chip" data-x="30">৩০ দিনের মধ্যে</button><button class="chip" data-x="60">৬০ দিনের মধ্যে</button><button class="chip" data-x="90">৯০ দিনের মধ্যে</button><button class="chip" data-x="180">৬ মাসের মধ্যে</button></div></div>
+<div class="kp" id="xk"></div>
+<div class="card"><table class="t"><thead><tr><th>ওষুধ</th><th>ব্যাচ</th><th>মেয়াদের তারিখ</th><th>বাকি দিন</th><th>পরিমাণ</th><th>মূল্য</th></tr></thead><tbody id="xl"></tbody></table><button class="btn s" id="xcsv" style="margin-top:10px">CSV ডাউনলোড</button></div></section>
+<section class="pg" id="ret">
+<div class="card"><h2>বিক্রির বিল খুঁজুন</h2><input id="rq" type="search" inputmode="numeric" placeholder="বিল নম্বর (খালি রাখলে সাম্প্রতিক বিল)"><div id="rsl"></div></div>
+<div class="card" id="rfm" hidden><div id="rhd"></div>
+<table class="t"><thead><tr><th>ওষুধ</th><th>বিক্রি হয়েছিল</th><th>আগে ফেরত</th><th>ফেরত পরিমাণ</th><th>ফেরত টাকা</th></tr></thead><tbody id="rit"></tbody></table>
+<div class="g" style="margin-top:12px"><label><span>কারণ</span><select id="rrs"><option>ভুল ওষুধ দেওয়া হয়েছে</option><option>কাস্টমার ফেরত দিয়েছে</option><option>ক্ষতিগ্রস্ত বা নষ্ট</option><option>অন্যান্য</option></select></label></div>
+<label style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><input id="rst" type="checkbox" checked style="width:auto;min-height:0"><span style="margin:0;font-size:15px;color:var(--ink)">স্টকে ফেরত যোগ করুন (বিক্রয়যোগ্য হলে)</span></label>
+<div class="row big"><span>ফেরত টাকা (মোট)</span><span id="rtot">৳0</span></div>
+<button class="btn w" id="rgo">ফেরত সম্পন্ন করুন</button></div>
+<div class="card"><h2>ফেরতের তালিকা</h2><table class="t"><thead><tr><th>সময়</th><th>বিল</th><th>পণ্য</th><th>ফেরত টাকা</th><th>কারণ</th></tr></thead><tbody id="rh"></tbody></table></div></section>
+<section class="pg" id="users"><div class="card"><h2>নতুন ক্যাশিয়ার যোগ করুন</h2><form id="fu"><div class="g"><label><span>ইউজারনেম</span><input name="u" required></label><label><span>পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)</span><input name="p" type="password" minlength="8" required autocomplete="new-password"></label></div><button class="btn" type="submit">ক্যাশিয়ার যোগ করুন</button></form></div><div class="card"><h2>ইউজার</h2><table class="t"><thead><tr><th>ইউজারনেম</th><th>ভূমিকা</th><th></th></tr></thead><tbody id="ul"></tbody></table></div><div class="card"><h2>অডিট লগ</h2><table class="t"><thead><tr><th>সময়</th><th>ইউজারনেম</th><th>কাজ</th></tr></thead><tbody id="au2"></tbody></table></div></section>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+const K='hp_v1',$=s=>document.querySelector(s);
+const now=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString(),today=()=>now().slice(0,10);
+const dd=n=>{const d=new Date(Date.now()+n*864e5);return d.toISOString().slice(0,10)};
+const seed=()=>({meds:[
+{id:1,name:'Napa 500 mg',gen:'Paracetamol',co:'Beximco Pharmaceuticals',cat:'Analgesic & antipyretic',bc:'8901001000011',price:2,b:[{no:'N2401',exp:dd(400),cost:1.4,qty:500}]},
+{id:2,name:'Seclo 20 mg',gen:'Omeprazole',co:'Square Pharmaceuticals',cat:'Gastrointestinal & antacid',bc:'8901001000028',price:7,b:[{no:'S2308',exp:dd(60),cost:5,qty:120},{no:'S2406',exp:dd(500),cost:5.2,qty:200}]},
+{id:3,name:'Maxpro 20',gen:'Esomeprazole',co:'Renata',cat:'Gastrointestinal & antacid',bc:'8901001000035',price:8,b:[{no:'M2402',exp:dd(300),cost:6,qty:8}]},
+{id:4,name:'Fexo 120',gen:'Fexofenadine',co:'Square Pharmaceuticals',cat:'Antihistamine & allergy',bc:'8901001000042',price:6,b:[{no:'F2301',exp:dd(-10),cost:4,qty:40}]},
+{id:5,name:'ORS Saline',gen:'Oral rehydration salts',co:'',cat:'Oral rehydration & fluids',bc:'8901001000059',price:5,b:[{no:'O2405',exp:dd(700),cost:3.5,qty:300}]}],
+sales:[],buys:[],exps:[],nid:6});
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+const CATS=[{k:'Analgesic & antipyretic',b:'ব্যথানাশক ও জ্বরনাশক'},{k:'Antibiotic',b:'অ্যান্টিবায়োটিক'},{k:'Gastrointestinal & antacid',b:'পাকস্থলী ও অ্যান্টাসিড'},{k:'Antihistamine & allergy',b:'অ্যান্টিহিস্টামিন ও অ্যালার্জি'},{k:'Cardiovascular',b:'হৃদরোগ ও রক্তচাপ'},{k:'Diabetes',b:'ডায়াবেটিস'},{k:'Respiratory & cough/cold',b:'শ্বাসতন্ত্র, সর্দি ও কাশি'},{k:'Vitamins & minerals',b:'ভিটামিন ও খনিজ'},{k:'Antifungal',b:'ছত্রাকনাশক'},{k:'Antiviral',b:'অ্যান্টিভাইরাল'},{k:'Antimalarial & antiparasitic',b:'ম্যালেরিয়া ও কৃমিনাশক'},{k:'Dermatology',b:'চর্মরোগ'},{k:'Eye & ear',b:'চোখ ও কান'},{k:'Neurology & psychiatry',b:'স্নায়ু ও মানসিক রোগ'},{k:'Hormones & endocrine',b:'হরমোন'},{k:'Oral rehydration & fluids',b:'ওরাল স্যালাইন ও তরল'},{k:'Injection & IV',b:'ইনজেকশন ও আইভি'},{k:'Pediatric',b:'শিশুদের ওষুধ'},{k:'Women’s health',b:'নারী স্বাস্থ্য'},{k:'Other',b:'অন্যান্য'}];
+CATS.splice(CATS.length-1,0,{k:'First aid & dressings',b:'ব্যান্ডেজ ও প্রাথমিক চিকিৎসা',g:1},{k:'Health devices',b:'স্বাস্থ্য পরীক্ষার যন্ত্র',g:1},{k:'Supports & therapy aids',b:'সাপোর্ট ও থেরাপি সামগ্রী',g:1},{k:'Oral & personal care',b:'দাঁত ও ব্যক্তিগত যত্ন',g:2},{k:'Feminine hygiene',b:'নারীর স্বাস্থ্যবিধি সামগ্রী',g:2},{k:'Shaving & grooming',b:'শেভিং ও গ্রুমিং',g:2},{k:'Hand hygiene & tissues',b:'হ্যান্ড হাইজিন ও টিস্যু',g:2},{k:'Baby care',b:'বেবি কেয়ার',g:3},{k:'Baby food & formula',b:'শিশুখাদ্য ও ফর্মুলা',g:3},{k:'Maternity care',b:'মাতৃত্বকালীন যত্ন',g:3},{k:'Supplements & protein',b:'সাপ্লিমেন্ট ও প্রোটিন',g:4},{k:'Health drinks',b:'হেলথ ড্রিংকস',g:4},{k:'Family planning & test kits',b:'পরিবার পরিকল্পনা ও টেস্ট কিট',g:5},{k:'Vision accessories',b:'চশমা ও লেন্স সামগ্রী',g:5},{k:'Mosquito repellents',b:'মশা প্রতিরোধ',g:5},{k:'Masks & gloves',b:'মাস্ক ও গ্লাভস',g:5});
+CATS[CATS.length-1].g=5;
+const GRPS=[{k:'Medicines',b:'ওষুধ'},{k:'Healthcare & first aid',b:'স্বাস্থ্যসেবা ও প্রাথমিক চিকিৎসা'},{k:'Hygiene & personal care',b:'হাইজিন ও ব্যক্তিগত যত্ন'},{k:'Baby & mother care',b:'শিশু ও মাতৃত্বকালীন যত্ন'},{k:'Supplements & nutrition',b:'সাপ্লিমেন্ট ও নিউট্রিশন'},{k:'General items',b:'অন্যান্য সাধারণ পণ্য'}];
+/* Starter list only (not the full official DGDA list). New names typed in the Company box are added automatically. */
+const COS=['Square Pharmaceuticals','Incepta Pharmaceuticals','Beximco Pharmaceuticals','Opsonin Pharma','Renata','Eskayef Pharmaceuticals','ACI','ACME Laboratories','Aristopharma','Drug International','Healthcare Pharmaceuticals','Popular Pharmaceuticals','Radiant Pharmaceuticals','Navana Pharmaceuticals','Orion Pharma','Ibn Sina Pharmaceutical','General Pharmaceuticals','Jayson Pharmaceuticals','Delta Pharma','Zenith Pharmaceuticals','Albion Laboratories','Asiatic Laboratories','Novartis (Bangladesh)','Sanofi Bangladesh','GlaxoSmithKline Bangladesh'];
+const SEEDC={'8901001000011':['Beximco Pharmaceuticals','Analgesic & antipyretic'],'8901001000028':['Square Pharmaceuticals','Gastrointestinal & antacid'],'8901001000035':['Renata','Gastrointestinal & antacid'],'8901001000042':['Square Pharmaceuticals','Antihistamine & allergy'],'8901001000059':['','Oral rehydration & fluids']};
+if(!S||!S.meds)S=seed();
+S.meds.forEach(m=>{if(m.cat===undefined){const x=SEEDC[m.bc]||[];m.co=x[0]||'';m.cat=x[1]||'Other'}});
+const catL=k=>{const c=CATS.find(x=>x.k===k);return c?(L==='bn'?c.b:c.k):k},catIdx=k=>{const i=CATS.findIndex(x=>x.k===(k||'Other'));return i<0?99:i},cosAll=()=>[...new Set([...COS,...S.meds.map(m=>m.co).filter(Boolean)])].sort((a,b)=>a.localeCompare(b));
+function fillFilters(){const cs=cosAll(),ck=$('#fk'),cc=$('#fc'),pk=ck.value,pc=cc.value,bnm=L==='bn';
+ const opt=c=>`<option value="${esc(c.k)}">${esc(catL(c.k))}</option>`,cnt=f=>S.meds.filter(f).length,optg=()=>GRPS.map((g,gi)=>{const it=CATS.filter(c=>(c.g||0)===gi);return it.length?`<optgroup label="${esc(L==='bn'?g.b:g.k)}">${it.map(opt).join('')}</optgroup>`:''}).join('');
+ ck.innerHTML=`<option value="">${bnm?'সব বিভাগ':'All departments'}</option>`+optg();
+ cc.innerHTML=`<option value="">${bnm?'সব কোম্পানি':'All companies'}</option>`+cs.map(c=>`<option>${esc(c)}</option>`).join('');
+ ck.value=pk;cc.value=pc;
+ const fc=$('#fcat'),pf=fc.value;fc.innerHTML=optg();if(pf)fc.value=pf;const b2=$('#bcat'),pb=b2.value;b2.innerHTML=fc.innerHTML;if(pb)b2.value=pb;
+ $('#cl').innerHTML=cs.map(c=>`<option value="${esc(c)}">`).join('');
+ $('#chips').innerHTML=CATS.map(c=>[c,cnt(m=>(m.cat||'Other')===c.k)]).filter(x=>x[1]).map(([c,n])=>`<button class="chip" data-k="${esc(c.k)}">${esc(catL(c.k))} ${bn(n)}</button>`).join('')+'<hr>'+cs.map(c=>[c,cnt(m=>m.co===c)]).filter(x=>x[1]).map(([c,n])=>`<button class="chip" data-c="${esc(c)}">${esc(c)} ${bn(n)}</button>`).join('')}
+$('#fk').onchange=$('#fc').onchange=()=>renderStock();
+$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;if(b.dataset.k!=null)$('#fk').value=b.dataset.k;else $('#fc').value=b.dataset.c;renderStock()};
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('ব্রাউজারের জায়গা শেষ। ব্যাকআপ নিন, ছবি কমান')}};
+let L='en';try{L=localStorage.getItem('hp_lang')||'en'}catch(e){}
+const bn=n=>Number(n).toLocaleString(L==='en'?'en-US':'bn-BD',{maximumFractionDigits:2}),tk=n=>'৳'+bn(n);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=d=>d==='9999-12-31'?'—':new Date(d).toLocaleDateString(L==='en'?'en-GB':'bn-BD',{month:'short',year:'numeric'});
+const fdt=a=>new Date(a.slice(0,10)).toLocaleDateString(L==='en'?'en-GB':'bn-BD',{day:'numeric',month:'short'})+' '+(L==='en'?a.slice(11,16):a.slice(11,16).replace(/\d/g,x=>'০১২৩৪৫৬৭৮৯'[x]));
+const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)};
+const expired=b=>b.exp<today(),avail=m=>m.b.filter(b=>!expired(b)).reduce((a,b)=>a+b.qty,0),total=m=>m.b.reduce((a,b)=>a+b.qty,0);
+const find=(m,q)=>(m.name+' '+m.gen+' '+m.bc+' '+(m.co||'')+' '+catL(m.cat||'Other')).toLowerCase().includes(q);
+function status(m){const s90=dd(90),live=m.b.filter(b=>b.qty>0);
+ if(live.some(expired))return['bad','মেয়াদ শেষ'];
+ if(avail(m)<=lowOf(m))return['warn','কম স্টক'];
+ if(live.some(b=>b.exp<=s90))return['warn','৯০ দিনে মেয়াদ শেষ'];
+ return['ok','ঠিক আছে']}
+
+/* tabs */
+$('#nav').onclick=e=>{const t=e.target.dataset.t;if(!t)return;
+ document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.id===t));
+ document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+ if(t==='pos')$('#q').focus()};
+
+/* POS */
+let cart=[];
+const med=id=>S.meds.find(x=>x.id==id);
+function addCart(id){const m=med(id),l=cart.find(c=>c.id==id);
+ if((l?l.qty:0)+1>avail(m))return toast('স্টকে আর নেই (মেয়াদোত্তীর্ণ বাদে)');
+ l?l.qty++:cart.push({id:m.id,qty:1});drawCart()}
+function drawCart(){let sub=0;
+ $('#lines').innerHTML=cart.length?cart.map((c,i)=>{const m=med(c.id);sub+=m.price*c.qty;
+ return `<div class="ln"><div><b>${esc(m.name)}</b><small>${tk(m.price)} × ${bn(c.qty)}</small></div><div class="qty"><button data-i="${i}" data-d="-1" aria-label="কমান">−</button><input class="qi" type="number" min="1" inputmode="numeric" value="${c.qty}" data-qi="${i}" aria-label="পরিমাণ"><button data-i="${i}" data-d="1" aria-label="বাড়ান">+</button></div><b>${tk(m.price*c.qty)}</b></div>`}).join(''):'<p class="empty">বারকোড স্ক্যান করুন বা নাম খুঁজে ওষুধ যোগ করুন।</p>';
+ const disc=Math.min(Math.max(+$('#disc').value||0,0),sub);
+ $('#sub').textContent=tk(sub);$('#tot').textContent=tk(sub-disc);$('#pay').disabled=!cart.length}
+$('#lines').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;const c=cart[i],d=+e.target.dataset.d;
+ if(d>0&&c.qty+1>avail(med(c.id)))return toast('স্টকে আর নেই');
+ c.qty+=d;if(c.qty<1)cart.splice(i,1);drawCart()};
+$('#disc').oninput=drawCart;
+function drawRes(){const q=$('#q').value.trim().toLowerCase();
+ const r=q?S.meds.filter(m=>find(m,q)).slice(0,8):[];
+ $('#res').innerHTML=r.map(m=>`<button class="rs" data-add="${m.id}"><span><img class="th" src="${m.img||ico(m.cat)}" alt=""><b>${esc(m.name)}</b><small>${esc(m.gen)}</small><small>বারকোড ${esc(m.bc)}</small></span><span><b>${tk(m.price)}</b><small>বিক্রয়যোগ্য ${bn(avail(m))}টি</small></span></button>`).join('')||(q?'<p class="empty">কিছু পাওয়া যায়নি। স্টক ট্যাবে নতুন ওষুধ যোগ করুন।</p>':'')}
+$('#q').oninput=drawRes;
+$('#q').onkeydown=e=>{if(e.key!=='Enter')return;const v=e.target.value.trim().toLowerCase();if(!v)return;
+ const hits=S.meds.filter(m=>find(m,v)),m=S.meds.find(x=>x.bc===e.target.value.trim())||(hits.length===1&&hits[0]);
+ if(m){addCart(m.id);e.target.value='';drawRes()}else toast(hits.length?'একটি ওষুধ বেছে নিন':'বারকোড মেলেনি')};
+$('#res').onclick=e=>{const b=e.target.closest('[data-add]');if(b){addCart(b.dataset.add);$('#q').value='';drawRes();$('#q').focus()}};
+$('#pay').onclick=()=>{let sub=0,cost=0;const items=[];
+ for(const c of cart){const m=med(c.id);let need=c.qty,cst=0;const parts=[];
+  for(const b of m.b.filter(b=>!expired(b)&&b.qty>0).sort((a,b)=>a.exp<b.exp?-1:1)){const u=Math.min(need,b.qty);b.qty-=u;need-=u;cst+=u*b.cost;parts.push({no:b.no,exp:b.exp,qty:u,cost:b.cost});if(!need)break}
+  sub+=m.price*c.qty;cost+=cst;items.push({name:m.name,qty:c.qty,price:m.price,cost:cst,mid:m.id,parts})}
+ const disc=Math.min(Math.max(+$('#disc').value||0,0),sub),s={id:S.sales.length+1,at:now(),items,sub,disc,total:sub-disc,cost,by:U?U.u:''};
+ S.sales.push(s);save();cart=[];$('#disc').value='';drawCart();
+ $('#rcpt').innerHTML=`<div class="rc"><b>Hurrama Pharma, বিল #${bn(s.id)}</b><small>${fdt(s.at)}</small>${items.map(i=>`<div class="row"><span>${esc(i.name)} × ${bn(i.qty)}</span><span>${tk(i.price*i.qty)}</span></div>`).join('')}${disc?`<div class="row"><span>ছাড়</span><span>−${tk(disc)}</span></div>`:''}<div class="row"><b>মোট</b><b>${tk(s.total)}</b></div><button class="btn s" id="prt" onclick="window.print()" style="margin-top:10px">রসিদ প্রিন্ট করুন</button></div>`;
+ renderAll();toast('বিক্রি সম্পন্ন, স্টক কমেছে')};
+
+/* stock */
+function renderStock(){fillFilters();const q=$('#sq').value.trim().toLowerCase(),fk=$('#fk').value,fc=$('#fc').value,rows=S.meds.filter(m=>find(m,q)&&(!fk||(m.cat||'Other')===fk)&&(!fc||m.co===fc)&&(!$('#lowo').checked||avail(m)<=lowOf(m))).sort((a,b)=>catIdx(a.cat)-catIdx(b.cat)||a.name.localeCompare(b.name));let last=null;
+ $('#stk').innerHTML=rows.map(m=>{const[s,t]=status(m),k=m.cat||'Other',gh=k!==last?(last=k,`<tr class="gh"><td colspan="6"><b>${esc(catL(k))}</b> (${bn(rows.filter(r=>(r.cat||'Other')===k).length)})</td></tr>`):'';return gh+`<tr><td><img class="th" src="${m.img||ico(m.cat)}" alt=""><b>${esc(m.name)}</b><small>${esc(m.gen)}${m.co?' / '+esc(m.co):''}</small><button class="chip" data-ph="${m.id}">${m.img?'ছবি বদলান':'ছবি যোগ করুন'}</button><small>কম স্টক ≤ <input type="number" min="0" data-lw="${m.id}" value="${m.min??''}" placeholder="${lowOf(m)}" style="width:64px;min-height:30px;padding:2px 6px"></small></td><td data-l="বারকোড">${esc(m.bc)}</td><td data-l="বিক্রয়মূল্য">${tk(m.price)}</td><td data-l="মোট স্টক">${bn(total(m))}টি</td><td data-l="ব্যাচ">${m.b.filter(b=>b.qty>0).map(b=>`<div class="bt${expired(b)?' x':''}">${esc(b.no)}: ${bn(b.qty)}টি, মেয়াদ ${fd(b.exp)}, ক্রয়মূল্য ${tk(b.cost)}</div>`).join('')||'—'}</td><td><span class="tag ${s}">${t}</span></td></tr>`}).join('')||'<tr><td colspan="6" class="empty">কোনো ওষুধ নেই। উপরে থেকে যোগ করুন।</td></tr>'}
+$('#sq').oninput=renderStock;
+$('#gen').onclick=()=>{$('#fbc').value='2'+String(Date.now()).slice(-11)+Math.floor(Math.random()*10)};
+$('#fm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),v=k=>f.get(k).trim();
+ if(S.meds.some(m=>m.bc===v('bc')))return toast('এই বারকোড আগে থেকেই আছে');
+ const qty=+v('qty'),cost=+v('cost');
+ S.meds.push({id:S.nid++,name:v('name'),gen:v('gen'),co:v('co'),cat:v('cat'),bc:v('bc'),price:+v('price'),b:[{no:v('no')||'-',exp:v('exp')||'9999-12-31',cost,qty}]});
+ S.buys.push({at:now(),name:v('name'),no:v('no')||'-',qty,cost,total:qty*cost});
+ save();e.target.reset();renderAll();toast('ওষুধ যোগ হয়েছে')};
+
+/* purchases */
+function renderBuy(){const cur=$('#bm').value;
+ $('#bm').innerHTML=S.meds.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');if(cur)$('#bm').value=cur;
+ $('#bl').innerHTML=S.buys.slice(-8).reverse().map(b=>`<tr><td data-l="তারিখ">${fdt(b.at)}</td><td data-l="ওষুধ">${esc(b.name)}</td><td data-l="ব্যাচ">${esc(b.no)}</td><td data-l="পরিমাণ">${bn(b.qty)}টি</td><td data-l="মোট">${tk(b.total)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">এখনো কোনো ক্রয় নেই</td></tr>'}
+$('#bb').onkeydown=e=>{if(e.key!=='Enter')return;e.preventDefault();const m=S.meds.find(x=>x.bc===e.target.value.trim());
+ if(m){$('#bm').value=m.id;e.target.value='';toast(m.name)}else toast('বারকোড মেলেনি, আগে স্টকে ওষুধ যোগ করুন')};
+$('#fb').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),m=med(f.get('m'));if(!m)return toast('ওষুধ বেছে নিন');
+ const no=f.get('no').trim()||'-',exp=f.get('exp')||'9999-12-31',cost=+f.get('cost'),qty=+f.get('qty'),ex=m.b.find(b=>b.no===no&&b.exp===exp);
+ ex?(ex.qty+=qty,ex.cost=cost):m.b.push({no,exp,cost,qty});
+ if(+f.get('price'))m.price=+f.get('price');
+ S.buys.push({at:now(),name:m.name,no,qty,cost,total:qty*cost});save();e.target.reset();renderAll();toast('ক্রয় সংরক্ষিত, স্টক বেড়েছে')};
+
+/* expenses */
+function renderExp(){$('#el').innerHTML=S.exps.map((x,i)=>[x,i]).reverse().slice(0,20).map(([x,i])=>`<tr><td data-l="তারিখ">${fdt(x.at)}</td><td data-l="খাত">${esc(x.cat)}</td><td data-l="বিবরণ">${esc(x.note)||'—'}</td><td data-l="পরিমাণ">${tk(x.amt)}</td><td><button class="btn s" data-del="${i}" style="min-height:36px;padding:4px 12px">মুছুন</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">এখনো কোনো খরচ নেই</td></tr>'}
+$('#fe').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);
+ S.exps.push({at:now(),cat:f.get('cat'),amt:+f.get('amt'),note:f.get('note').trim()});save();e.target.reset();renderAll();toast('খরচ সংরক্ষিত')};
+$('#el').onclick=e=>{const i=e.target.dataset.del;if(i==null)return;S.exps.splice(i,1);save();renderAll();toast('খরচ মুছে ফেলা হয়েছে')};
+
+/* accounts */
+function renderAcc(){const r=$('#rg').value,t=today(),inR=a=>r==='all'||(r==='day'?a.slice(0,10)===t:a.slice(0,7)===t.slice(0,7));
+ const sl=S.sales.filter(s=>inR(s.at)),sum=(a,k)=>a.reduce((x,y)=>x+y[k],0);
+ const rl=(S.rets||[]).filter(r=>inR(r.at)),rev=sum(sl,'total')-sum(rl,'refund'),cogs=sum(sl,'cost')-sum(rl,'cost'),gp=rev-cogs,ex=sum(S.exps.filter(x=>inR(x.at)),'amt'),net=gp-ex,pu=sum(S.buys.filter(x=>inR(x.at)),'total');
+ let sv=0,xv=0;S.meds.forEach(m=>m.b.forEach(b=>{sv+=b.qty*b.cost;if(expired(b))xv+=b.qty*b.cost}));
+ const k=(l,v,c='')=>`<div class="kpi ${c}"><small>${l}</small><b${v<0?' class="neg"':''}>${tk(v)}</b></div>`;
+ $('#kp').innerHTML=k('মোট বিক্রি (ফেরত বাদে)',rev)+k('ফেরত',sum(rl,'refund'))+k('বিক্রিত ওষুধের ক্রয়মূল্য',cogs)+k('মোট লাভ',gp)+k('খরচ',ex)+k(net<0?'নিট ক্ষতি':'নিট লাভ',net,'pf')+k('ক্রয় (এই সময়ে)',pu)+k('বর্তমান স্টকের মূল্য (ক্রয়মূল্যে)',sv)+k('মেয়াদোত্তীর্ণ স্টকের মূল্য',xv);
+ $('#sl').innerHTML=sl.slice(-10).reverse().map(s=>`<tr><td data-l="বিল">#${bn(s.id)}</td><td data-l="সময়">${fdt(s.at)}</td><td data-l="পণ্য">${s.items.map(i=>esc(i.name)+' × '+bn(i.qty)).join(', ')}</td><td data-l="মোট">${tk(s.total)}</td><td data-l="লাভ">${tk(s.total-s.cost)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">এই সময়ে কোনো বিক্রি নেই</td></tr>'}
+$('#rg').onchange=renderAcc;
+let rs=0;$('#rs').onclick=e=>{if(!rs){rs=1;e.target.textContent='সব ডেটা মুছে যাবে, নিশ্চিত করতে আবার চাপুন';setTimeout(()=>{rs=0;e.target.textContent='ডেমো ডেটা মুছে খালি শুরু করুন'},3500);return}
+ rs=0;S={meds:[],sales:[],buys:[],exps:[],nid:1,users:S.users,audit:S.audit,cfg:S.cfg};cart=[];save();renderAll();drawCart();e.target.textContent='ডেমো ডেটা মুছে খালি শুরু করুন';toast('নতুন করে শুরু হয়েছে')};
+
+function renderAll(){renderStock();renderBuy();renderExp();renderAcc();drawRes()}
+renderAll();drawCart();
+/* backup / restore */
+$('#bk').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'hp',v:1,data:S})],{type:'application/json'}));a.download='hurrama-backup-'+today()+'.json';a.click();toast('ব্যাকআপ ডাউনলোড হয়েছে')};
+$('#rf').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);if(o.app!=='hp'||!o.data||!Array.isArray(o.data.meds))throw 0;o.data.users=o.data.users&&o.data.users.length?o.data.users:S.users;o.data.audit=o.data.audit||S.audit||[];S=o.data;audit('backup restored');save();cart=[];renderAll();drawCart();toast('ডেটা ফিরিয়ে আনা হয়েছে')}catch(x){toast('ব্যাকআপ ফাইল ভুল')}});e.target.value=''};
+/* language: English first, Bengali second */
+const EN={'কম স্টকের সীমা':'Low-stock level','সব আইটেমের জন্য সীমা: এত পিস বা তার কম হলে কম স্টক ধরা হবে':'Limit for all items: this many units or fewer counts as low stock','শুধু কম স্টক দেখান':'Show low stock only','প্রতিটি আইটেমের আলাদা সীমা নিচের তালিকায় তার সারিতে দিতে পারেন। ফাঁকা থাকলে সাধারণ সীমা ধরা হবে।':'You can set a separate limit for any item in its row below. If empty, the general limit is used.','নাম বা কাজ লিখুন, যেমন paracetamol, জ্বর, fever, ডায়াবেটিস':'Type a name or use, e.g. paracetamol, fever, diabetes','শুধু সাধারণ রেফারেন্স, চিকিৎসা পরামর্শ নয়। ব্যবহারের আগে প্যাকেট ও ডাক্তারের নির্দেশ দেখুন।':'General reference only, not medical advice. Check the pack and the doctor’s instructions before use.','ওষুধ তথ্য':'Drug Index','ওষুধ খুঁজুন (নাম বা কাজ)':'Search medicines (by name or use)','নাম, কোম্পানি বা কাজ লিখুন, যেমন paracetamol, জ্বর, acidity':'Type a name, company or use, e.g. paracetamol, fever, acidity','সংক্ষিপ্ত সাধারণ তথ্য, চিকিৎসা পরামর্শ নয়। ডোজ বা রোগীকে পরামর্শ দেওয়ার আগে প্যাকেটের লেবেল বা নির্ভরযোগ্য ড্রাগ রেফারেন্স দেখুন।':'Short general information, not medical advice. Check the pack label or a reliable drug reference before giving doses or advice to a patient.','বড় তালিকা (CSV) আমদানি করুন':'Import a large list (CSV)','আমদানি করা তালিকা মুছুন':'Remove imported list','নতুন আইটেম হিসেবে যোগ করুন':'Add as a new item','ফাইলে কোনো আইটেম পাওয়া যায়নি':'No items found in the file','তালিকা সংরক্ষণ করা যায়নি':'Could not save the list','তালিকা যোগ হয়েছে':'List imported','ক্যাটালগ থেকে খুঁজে যোগ করুন':'Search the catalog and add','যেকোনো ওষুধ বা পণ্যের নাম লিখুন, যেমন paracetamol, thermometer':'Type any medicine or product name, e.g. paracetamol, thermometer','ক্যাটালগে সাধারণ জেনেরিক নাম ও ফার্মেসির পণ্য আছে, ব্র্যান্ডের নাম নেই। একটি বেছে নিলে নিচের ফর্ম ভরে যায়। তারপর বারকোড স্ক্যান করে ব্যাচ, মেয়াদ, দাম ও পরিমাণ লিখে সংরক্ষণ করুন।':'The catalog has common generic names and pharmacy products, not brand names. Pick one and the form below is filled in. Then scan the barcode, enter batch, expiry, price and quantity, and save.','ক্যাটালগে নেই, নিচের ফর্মে নিজে লিখুন':'Not in the catalog, type it in the form below','ছবি (ঐচ্ছিক)':'Photo (optional)','ছবি যোগ করুন':'Add photo','ছবি বদলান':'Change photo','ব্রাউজারের জায়গা শেষ। ব্যাকআপ নিন, ছবি কমান':'Browser storage is full. Download a backup and use fewer photos','মেয়াদ রিপোর্ট':'Expiry','এই তারিখ বা তার আগে মেয়াদ শেষ হবে':'Expires on or before this date','মেয়াদোত্তীর্ণগুলোও দেখান':'Include already expired','মেয়াদোত্তীর্ণ':'Expired','৩০ দিনের মধ্যে':'Within 30 days','৬০ দিনের মধ্যে':'Within 60 days','৯০ দিনের মধ্যে':'Within 90 days','৬ মাসের মধ্যে':'Within 6 months','ব্যাচ সংখ্যা':'Batches','মোট পরিমাণ':'Total units','মোট মূল্য (ক্রয়মূল্যে)':'Total value (at cost)','বাকি দিন':'Days left','মেয়াদের তারিখ':'Expiry date','মূল্য':'Value','এই সময়ের মধ্যে কোনো আইটেম নেই':'No items in this range','CSV ডাউনলোড':'Download CSV','বিক্রির বিল খুঁজুন':'Find a sale','বিল নম্বর (খালি রাখলে সাম্প্রতিক বিল)':'Bill number (leave empty for recent bills)','স্টকে ফেরত যোগ করুন (বিক্রয়যোগ্য হলে)':'Put back in stock (if still sellable)','ফেরত সম্পন্ন করুন':'Complete return','ফেরত সম্পন্ন':'Return completed','ফেরতের পরিমাণ দিন':'Enter a return quantity','ফেরতের পরিমাণ বেশি':'Return quantity too high','ফেরতের তালিকা':'Return history','এখনো কোনো ফেরত নেই':'No returns yet','ফেরত টাকা (মোট)':'Refund total','ফেরত টাকা':'Refund','ফেরত পরিমাণ':'Return quantity','আগে ফেরত':'Already returned','বিক্রি হয়েছিল':'Sold','কারণ':'Reason','ভুল ওষুধ দেওয়া হয়েছে':'Wrong medicine given','কাস্টমার ফেরত দিয়েছে':'Customer returned it','ক্ষতিগ্রস্ত বা নষ্ট':'Damaged or spoiled','মোট বিক্রি (ফেরত বাদে)':'Total sales (after returns)','প্রতি পিস':'per unit','ফেরত':'Returns','টিপ: স্ক্যানের আগে 100* লিখলে ১০০টি যোগ হবে। অথবা স্ক্যানের পর Enter চেপে পরিমাণ লিখুন।':'Tip: type 100* before scanning to add 100 units, or press Enter after a scan and type the quantity.','স্টকে এর বেশি নেই':'Not enough stock','সাইন ইন':'Sign in','প্রথমবার: মালিকের অ্যাকাউন্ট তৈরি করুন':'First time: create the owner account','অ্যাকাউন্ট তৈরি করুন':'Create account','পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে':'Password must be at least 8 characters','পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)':'Password (at least 8 characters)','পাসওয়ার্ড আবার লিখুন':'Repeat password','পাসওয়ার্ড মেলেনি':'Passwords do not match','পাসওয়ার্ড':'Password','ইউজারনেম বা পাসওয়ার্ড ভুল':'Wrong username or password','ইউজারনেম প্রয়োজন':'Username required','এই ইউজারনেম আছে':'Username already exists','ইউজারনেম':'Username','নতুন ক্যাশিয়ার যোগ করুন':'Add a cashier','ক্যাশিয়ার যোগ করুন':'Add cashier','ক্যাশিয়ার যোগ হয়েছে':'Cashier added','ইউজার মুছে ফেলা হয়েছে':'User deleted','ইউজার':'Users','ক্যাশিয়ার':'Cashier','মালিক':'Owner','ভূমিকা':'Role','কাজ':'Action','অডিট লগ':'Audit log','লগ আউট':'Log out','টেমপ্লেট ডাউনলোড':'Download template','ফাইল থেকে নিন (CSV)':'Load from file (CSV)','ওষুধগুলো যোগ করুন':'Import medicines','একসঙ্গে অনেক ওষুধ যোগ করুন':'Bulk add medicines','প্রতি লাইনে একটি ওষুধ: নাম, জেনেরিক, বারকোড, বিক্রয়মূল্য, ব্যাচ, মেয়াদ (YYYY-MM-DD), ক্রয়মূল্য, পরিমাণ। Excel বা Google Sheets থেকে কপি করে পেস্ট করুন।':'One medicine per line: name, generic, barcode, selling price, batch, expiry (YYYY-MM-DD), purchase price, quantity. Copy from Excel or Google Sheets and paste here.','বিভাগ ও কোম্পানি':'Departments & companies','কোম্পানি':'Company','বিভাগ':'Department','বিক্রয় ও স্টক ব্যবস্থাপনা':'Sales & stock management','ওষুধ খুঁজুন বা বারকোড স্ক্যান করুন':'Find a medicine or scan a barcode','নাম, জেনেরিক বা বারকোড লিখুন, তারপর Enter চাপুন':'Type name, generic or barcode, then press Enter','বর্তমান বিল':'Current bill','উপমোট':'Subtotal','ছাড় (৳)':'Discount (৳)','ছাড়':'Discount','বিক্রি সম্পন্ন করুন':'Complete sale','রসিদ প্রিন্ট করুন':'Print receipt','নতুন ওষুধ যোগ করুন':'Add new medicine','ওষুধের নাম':'Medicine name','জেনেরিক নাম':'Generic name','বিক্রয়মূল্য প্রতি পিস (৳)':'Selling price per unit (৳)','ব্যাচ নম্বর':'Batch no.','মেয়াদ শেষের তারিখ':'Expiry date','ক্রয়মূল্য প্রতি পিস (৳)':'Purchase price per unit (৳)','পরিমাণ (পিস)':'Quantity (units)','পরিমাণ (৳)':'Amount (৳)','ওষুধ সংরক্ষণ করুন':'Save medicine','বারকোড তৈরি করুন':'Generate barcode','স্টকে খুঁজুন':'Search stock','মোট স্টক':'Total stock','ব্যাচ ও মেয়াদ':'Batches & expiry','ক্রয় যোগ করুন':'Add purchase','বারকোড স্ক্যান':'Scan barcode','স্ক্যান করে Enter চাপুন':'Scan, then press Enter','নতুন বিক্রয়মূল্য (ঐচ্ছিক)':'New selling price (optional)','ক্রয় সংরক্ষণ করুন':'Save purchase','সাম্প্রতিক ক্রয়':'Recent purchases','খরচ যোগ করুন':'Add expense','খরচ সংরক্ষণ করুন':'Save expense','খরচের তালিকা':'Expense list','দোকান ভাড়া':'Shop rent','কর্মচারীর বেতন':'Staff salary','বিদ্যুৎ ও পানি':'Electricity & water','পরিবহন':'Transport','লাইসেন্স ও ফি':'License & fees','অন্যান্য':'Other','সময়কাল':'Period','সব সময়':'All time','এই মাস':'This month','সাম্প্রতিক বিক্রি':'Recent sales','ডেমো ডেটা মুছে খালি শুরু করুন':'Clear demo data and start fresh','সব ডেটা মুছে যাবে, নিশ্চিত করতে আবার চাপুন':'All data will be erased. Press again to confirm','এই সময়ে কোনো বিক্রি নেই':'No sales in this period','ব্যাকআপ ডাউনলোড করুন':'Download backup','ব্যাকআপ থেকে ফিরিয়ে আনুন':'Restore from backup','ব্যাকআপ ডাউনলোড হয়েছে':'Backup downloaded','ডেটা ফিরিয়ে আনা হয়েছে':'Data restored','ব্যাকআপ ফাইল ভুল':'Invalid backup file','বারকোড স্ক্যান করুন বা নাম খুঁজে ওষুধ যোগ করুন।':'Scan a barcode or search by name to add medicines.','কিছু পাওয়া যায়নি। স্টক ট্যাবে নতুন ওষুধ যোগ করুন।':'Nothing found. Add the medicine in the Stock tab.','কোনো ওষুধ নেই। উপরে থেকে যোগ করুন।':'No medicines yet. Add one above.','এখনো কোনো ক্রয় নেই':'No purchases yet','এখনো কোনো খরচ নেই':'No expenses yet','বিক্রয়যোগ্য':'Sellable','বিক্রয়মূল্য':'Selling price','৯০ দিনে মেয়াদ শেষ':'Expires within 90 days','মেয়াদ শেষ':'Expired','কম স্টক':'Low stock','ঠিক আছে':'OK','স্টকে আর নেই (মেয়াদোত্তীর্ণ বাদে)':'Out of stock (expired batches excluded)','স্টকে আর নেই':'Out of stock','একটি ওষুধ বেছে নিন':'Select one medicine','বারকোড মেলেনি, আগে স্টকে ওষুধ যোগ করুন':'Barcode not found, add the medicine in Stock first','বারকোড মেলেনি':'Barcode not found','বিক্রি সম্পন্ন, স্টক কমেছে':'Sale completed, stock updated','এই বারকোড আগে থেকেই আছে':'This barcode already exists','ওষুধ যোগ হয়েছে':'Medicine added','ওষুধ বেছে নিন':'Select a medicine','ক্রয় সংরক্ষিত, স্টক বেড়েছে':'Purchase saved, stock updated','খরচ সংরক্ষিত':'Expense saved','খরচ মুছে ফেলা হয়েছে':'Expense deleted','নতুন করে শুরু হয়েছে':'Fresh start done','বিক্রিত ওষুধের ক্রয়মূল্য':'Cost of medicines sold','মোট বিক্রি':'Total sales','মোট লাভ':'Gross profit','নিট ক্ষতি':'Net loss','নিট লাভ':'Net profit','ক্রয় (এই সময়ে)':'Purchases (this period)','বর্তমান স্টকের মূল্য (ক্রয়মূল্যে)':'Current stock value (at cost)','মেয়াদোত্তীর্ণ স্টকের মূল্য':'Expired stock value','ক্রয়মূল্য':'cost','মেয়াদ':'exp','বারকোড':'Barcode','ব্যাচ':'Batch','তারিখ':'Date','পরিমাণ':'Quantity','খাত':'Category','বিবরণ':'Note','মুছুন':'Delete','অবস্থা':'Status','ওষুধ':'Medicine','আজ':'Today','সময়':'Time','পণ্য':'Items','লাভ':'Profit','কমান':'Decrease','বাড়ান':'Increase','বিক্রি':'Sales','স্টক':'Stock','ক্রয়':'Purchases','খরচ':'Expenses','হিসাব':'Accounts','মোট':'Total','বিল':'Bill','টি':' pcs'};
+const KEYS=Object.keys(EN).sort((a,b)=>b.length-a.length),BNR=/[\u0980-\u09FF]/,ATTR=['placeholder','aria-label','data-l'],ORIG=new WeakMap();
+const trs=s=>{let o=s;for(const k of KEYS)if(o.includes(k))o=o.split(k).join(EN[k]);return o};
+function trNode(n){
+ if(n.nodeType===3){const v=n.nodeValue;if(BNR.test(v)){const r=trs(v);if(r!==v){if(!ORIG.has(n))ORIG.set(n,v);n.nodeValue=r}}return}
+ if(n.nodeType!==1||/^(SCRIPT|STYLE)$/.test(n.tagName))return;
+ for(const a of ATTR){const v=n.getAttribute(a);if(v&&BNR.test(v)){const r=trs(v);if(r!==v){n._o=n._o||{};if(!(a in n._o))n._o[a]=v;n.setAttribute(a,r)}}}
+ n.childNodes.forEach(trNode)}
+function untr(n){
+ if(n.nodeType===3){if(ORIG.has(n)){n.nodeValue=ORIG.get(n);ORIG.delete(n)}return}
+ if(n.nodeType!==1||/^(SCRIPT|STYLE)$/.test(n.tagName))return;
+ if(n._o){for(const a in n._o)n.setAttribute(a,n._o[a]);n._o=null}
+ n.childNodes.forEach(untr)}
+new MutationObserver(ms=>{if(L==='en')ms.forEach(m=>m.addedNodes.forEach(trNode))}).observe(document.body,{childList:true,subtree:true});
+function paintLang(){document.documentElement.lang=L;document.querySelectorAll('.lg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===L)))}
+function setLang(l){L=l;try{localStorage.setItem('hp_lang',l)}catch(e){}paintLang();$('#rcpt').innerHTML='';if(l==='en')trNode(document.body);else untr(document.body);renderAll();drawCart()}
+document.querySelector('.lg').onclick=e=>{const l=e.target.dataset.lang;if(l&&l!==L)setLang(l)};
+paintLang();if(L==='en')trNode(document.body);
+/* login, roles, audit log, bulk import */
+S.users=S.users||[];S.audit=S.audit||[];
+let U=null,idle;
+const enc=new TextEncoder(),b2h=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''),h2b=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
+const newSalt=()=>b2h(crypto.getRandomValues(new Uint8Array(16)));
+async function hashPw(pw,salt){const k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);return b2h(await crypto.subtle.deriveBits({name:'PBKDF2',salt:h2b(salt),iterations:150000,hash:'SHA-256'},k,256))}
+const same=(a,b)=>a.length===b.length&&[...a].reduce((r,c,i)=>r|(c.charCodeAt()^b.charCodeAt(i)),0)===0;
+const audit=(a,who)=>{S.audit.push({at:now(),u:U?U.u:(who||'-'),a});if(S.audit.length>500)S.audit.splice(0,S.audit.length-500)};
+function showAuth(){const first=!S.users.length;document.body.classList.add('locked');$('#ap2r').hidden=!first;$('#ap2').required=first;$('#at').textContent=first?'প্রথমবার: মালিকের অ্যাকাউন্ট তৈরি করুন':'সাইন ইন';$('#ab').textContent=first?'অ্যাকাউন্ট তৈরি করুন':'সাইন ইন';$('#amsg').textContent='';$('#af').reset()}
+function enter(u){U={u:u.u,role:u.role};document.body.classList.remove('locked');document.body.classList.toggle('cashier',u.role!=='owner');$('#af').reset();document.querySelector('[data-t=pos]').click();renderAll();drawCart();renderUsers();bump()}
+function logout(){if(U){audit('logout');save()}U=null;cart=[];$('#rcpt').innerHTML='';drawCart();showAuth()}
+const bump=()=>{clearTimeout(idle);if(U)idle=setTimeout(logout,6e5)};['click','keydown','touchstart'].forEach(v=>document.addEventListener(v,bump,true));
+$('#out').onclick=logout;
+$('#af').onsubmit=async e=>{e.preventDefault();const u=$('#au').value.trim().toLowerCase(),p=$('#ap').value,first=!S.users.length,msg=$('#amsg');msg.textContent='';
+ try{if(first){if(!u)return msg.textContent='ইউজারনেম প্রয়োজন';if(p.length<8)return msg.textContent='পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';if(p!==$('#ap2').value)return msg.textContent='পাসওয়ার্ড মেলেনি';
+  const salt=newSalt(),r={u,role:'owner',salt,hash:await hashPw(p,salt)};S.users.push(r);U=null;audit('owner created',u);save();enter(r)}
+ else{const r=S.users.find(x=>x.u===u),ok=r&&same(await hashPw(p,r.salt),r.hash);if(!ok){audit('login failed',u);save();msg.textContent='ইউজারনেম বা পাসওয়ার্ড ভুল';return}audit('login',u);save();enter(r)}
+ }catch(x){msg.textContent='This browser cannot run secure login (Web Crypto missing).'}};
+function renderUsers(){if(!U||U.role!=='owner')return;$('#ul').innerHTML=S.users.map(x=>`<tr><td data-l="ইউজারনেম">${esc(x.u)}</td><td data-l="ভূমিকা">${x.role==='owner'?'মালিক':'ক্যাশিয়ার'}</td><td>${x.role==='owner'?'':`<button class="btn s" data-du="${esc(x.u)}" style="min-height:36px;padding:4px 12px">মুছুন</button>`}</td></tr>`).join('');
+ $('#au2').innerHTML=S.audit.slice(-40).reverse().map(a=>`<tr><td data-l="সময়">${fdt(a.at)}</td><td data-l="ইউজারনেম">${esc(a.u)}</td><td data-l="কাজ">${esc(a.a)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">—</td></tr>'}
+$('#nav').addEventListener('click',e=>{if(e.target.dataset.t==='users')renderUsers()});
+$('#fu').onsubmit=async e=>{e.preventDefault();if(!U||U.role!=='owner')return;const f=new FormData(e.target),u=f.get('u').trim().toLowerCase(),p=f.get('p');
+ if(!u)return toast('ইউজারনেম প্রয়োজন');if(p.length<8)return toast('পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে');if(S.users.some(x=>x.u===u))return toast('এই ইউজারনেম আছে');
+ const salt=newSalt();S.users.push({u,role:'cashier',salt,hash:await hashPw(p,salt)});audit('cashier added: '+u);save();e.target.reset();renderUsers();toast('ক্যাশিয়ার যোগ হয়েছে')};
+$('#ul').onclick=e=>{const u=e.target.dataset.du;if(!u||!U||U.role!=='owner')return;S.users=S.users.filter(x=>x.u!==u||x.role==='owner');audit('user deleted: '+u);save();renderUsers();toast('ইউজার মুছে ফেলা হয়েছে')};
+const cnt=()=>[S.sales.length,S.meds.length,S.buys.length,S.exps.length].join();
+function wrap(sel,ev,label,always){const el=$(sel),o=el[ev];el[ev]=function(e){const b=cnt(),r=o.call(this,e);if(always||cnt()!==b){audit(label);save()}return r}}
+wrap('#pay','onclick','sale');wrap('#fm','onsubmit','medicine added');wrap('#fb','onsubmit','purchase added');wrap('#fe','onsubmit','expense added');wrap('#el','onclick','expense deleted');wrap('#bk','onclick','backup downloaded',1);wrap('#rs','onclick','data reset');
+const okDate=d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&new Date(d+'T00:00:00Z').toISOString().slice(0,10)===d;
+$('#btp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['name,generic,barcode,selling_price,batch_no,expiry,purchase_price,quantity\nNapa 500 mg,Paracetamol,8901001000011,2,N2501,2027-12-31,1.4,500\n'],{type:'text/csv'}));a.download='hurrama-medicine-template.csv';a.click()};
+$('#bfile').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>{$('#bta').value=t});e.target.value=''};
+$('#bgo').onclick=()=>{if(!U||U.role!=='owner')return;const co=$('#bco').value.trim(),cat=$('#bcat').value||'Other',bnm=L==='bn',bad=[],keep=[];let ok=0;
+ $('#bta').value.split(/\r?\n/).forEach((ln,i)=>{if(!ln.trim())return;const c=ln.split(ln.includes('\t')?'\t':',').map(x=>x.trim());if(i===0&&/^name/i.test(c[0]))return;
+  const[name,gen,bc,pr,no0,exp0,cost,qty]=c,P=+pr,C=+cost,Q=+qty,no=no0||'-',exp=exp0||'9999-12-31';
+  const why=!name?['name missing','নাম নেই']:!bc?['barcode missing','বারকোড নেই']:(!pr||!(P>=0))?['bad selling price','বিক্রয়মূল্য ভুল']:!no?['batch missing','ব্যাচ নেই']:!okDate(exp)?['expiry must be YYYY-MM-DD','মেয়াদ YYYY-MM-DD হতে হবে']:(!cost||!(C>=0))?['bad purchase price','ক্রয়মূল্য ভুল']:!(Number.isInteger(Q)&&Q>0)?['bad quantity','পরিমাণ ভুল']:null;
+  if(why){bad.push((bnm?'লাইন ':'Line ')+(i+1)+': '+why[bnm?1:0]);keep.push(ln);return}
+  let m=S.meds.find(x=>x.bc===bc);if(!m){m={id:S.nid++,name,gen:gen||'',co,cat,bc,price:P,b:[]};S.meds.push(m)}else m.price=P;
+  const b=m.b.find(x=>x.no===no&&x.exp===exp);b?(b.cost=Math.round((b.cost*b.qty+C*Q)/(b.qty+Q)*100)/100,b.qty+=Q):m.b.push({no,exp,cost:C,qty:Q});
+  S.buys.push({at:now(),name:m.name,no,qty:Q,cost:C,total:Q*C});ok++});
+ if(ok){audit('bulk import: '+ok+' rows');save();renderAll()}
+ $('#bta').value=keep.join('\n');
+ $('#bres').innerHTML='<b>'+(bnm?bn(ok)+'টি সারি যোগ হয়েছে, ভুল '+bn(bad.length)+'টি':ok+' rows imported, '+bad.length+' with errors')+'</b>'+bad.slice(0,15).map(x=>'<small>'+esc(x)+'</small>').join('')};
+/* quantity entry: type a number instead of scanning many times */
+$('#lines').onchange=e=>{const i=e.target.dataset.qi;if(i==null)return;const c=cart[i];if(!c)return;const a=avail(med(c.id));let q=Math.floor(+e.target.value);
+ if(q>a){q=a;toast('স্টকে এর বেশি নেই')}
+ q>=1?c.qty=q:cart.splice(i,1);drawCart();$('#q').focus()};
+$('#lines').addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('qi'))e.target.select()});
+const qk=$('#q').onkeydown;
+$('#q').onkeydown=function(e){if(e.key==='Enter'){const raw=e.target.value.trim();
+  if(!raw){const qi=document.querySelectorAll('.qi');if(qi.length){const x=qi[qi.length-1];x.focus();x.select()}return}
+  const mt=raw.match(/^(\d+)\s*[*×]\s*(\S+)$/);
+  if(mt){const m=S.meds.find(x=>x.bc===mt[2]),n=+mt[1];if(!m||n<1)return toast('বারকোড মেলেনি');const l=cart.find(c=>c.id==m.id);if((l?l.qty:0)+n>avail(m))return toast('স্টকে এর বেশি নেই');l?l.qty+=n:cart.push({id:m.id,qty:n});drawCart();e.target.value='';drawRes();return}}
+ return qk.call(this,e)};
+/* returns */
+let RS=null;const rratio=s=>s.sub?s.total/s.sub:1;
+function drawRetList(){if(!U||U.role!=='owner')return;const q=$('#rq').value.trim(),list=S.sales.filter(s=>!q||String(s.id)===q).slice(-15).reverse();
+ $('#rsl').innerHTML=list.map(s=>`<button class="rs" data-sid="${s.id}"><span><b>বিল #${bn(s.id)}</b><small>${fdt(s.at)}</small><small>${esc(s.items.map(i=>i.name).join(', '))}</small></span><span><b>${tk(s.total)}</b></span></button>`).join('')||'<p class="empty">—</p>'}
+function drawRetForm(){const s=RS&&S.sales.find(x=>x.id===RS);$('#rfm').hidden=!s;if(!s)return;
+ $('#rhd').innerHTML=`<b>বিল #${bn(s.id)}</b><small>${fdt(s.at)}</small>`;
+ $('#rit').innerHTML=s.items.map((it,i)=>{const left=it.qty-(it.ret||0);return `<tr><td><b>${esc(it.name)}</b></td><td data-l="বিক্রি হয়েছিল">${bn(it.qty)}</td><td data-l="আগে ফেরত">${bn(it.ret||0)}</td><td data-l="ফেরত পরিমাণ"><input class="qi" type="number" min="0" max="${left}" value="0" data-ri="${i}"${left?'':' disabled'}></td><td data-l="ফেরত টাকা">${tk(it.price*rratio(s))}<small>প্রতি পিস</small></td></tr>`}).join('');
+ $('#rtot').textContent=tk(0)}
+function drawRetHist(){if(!U||U.role!=='owner')return;$('#rh').innerHTML=(S.rets||[]).slice(-15).reverse().map(r=>`<tr><td data-l="সময়">${fdt(r.at)}</td><td data-l="বিল">#${bn(r.saleId)}</td><td data-l="পণ্য">${esc(r.items.map(i=>i.name+' × '+bn(i.qty)).join(', '))}</td><td data-l="ফেরত টাকা">${tk(r.refund)}</td><td data-l="কারণ">${esc(r.reason)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">এখনো কোনো ফেরত নেই</td></tr>'}
+$('#rq').oninput=drawRetList;
+$('#rsl').onclick=e=>{const b=e.target.closest('[data-sid]');if(!b)return;RS=+b.dataset.sid;drawRetForm()};
+$('#rit').oninput=()=>{const s=S.sales.find(x=>x.id===RS);if(!s)return;let t=0;document.querySelectorAll('[data-ri]').forEach(el=>{const it=s.items[+el.dataset.ri],q=Math.min(Math.max(Math.floor(+el.value)||0,0),it.qty-(it.ret||0));t+=Math.round(it.price*q*rratio(s)*100)/100});$('#rtot').textContent=tk(t)};
+$('#rgo').onclick=()=>{if(!U||U.role!=='owner')return;const s=S.sales.find(x=>x.id===RS);if(!s)return;const reason=$('#rrs').value,restock=$('#rst').checked,ratio=rratio(s);
+ const picks=[...document.querySelectorAll('[data-ri]')].map(el=>[+el.dataset.ri,Math.floor(+el.value)]).filter(x=>x[1]>0);
+ if(!picks.length)return toast('ফেরতের পরিমাণ দিন');
+ for(const[i,q]of picks)if(q>s.items[i].qty-(s.items[i].ret||0))return toast('ফেরতের পরিমাণ বেশি');
+ let refund=0,cost=0;const its=[];
+ for(const[i,q]of picks){const it=s.items[i],m=med(it.mid)||S.meds.find(x=>x.name===it.name);let left=q,c=0;
+  if(it.parts){for(const p of it.parts){const t=Math.min(left,p.qty-(p.r||0));if(t<=0)continue;p.r=(p.r||0)+t;left-=t;c+=t*p.cost;if(restock&&m){const b=m.b.find(x=>x.no===p.no&&x.exp===p.exp);b?b.qty+=t:m.b.push({no:p.no,exp:p.exp,cost:p.cost,qty:t})}}}
+  else{c=q*it.cost/it.qty;if(restock&&m&&m.b.length)m.b[0].qty+=q}
+  it.ret=(it.ret||0)+q;const r=Math.round(it.price*q*ratio*100)/100;refund+=r;cost+=restock?c:0;its.push({name:it.name,qty:q,refund:r})}
+ S.rets=S.rets||[];S.rets.push({id:S.rets.length+1,at:now(),saleId:s.id,by:U.u,reason,restock,items:its,refund,cost});
+ audit('return bill '+s.id+': '+refund);save();toast('ফেরত সম্পন্ন');RS=null;renderAll();drawRetForm()};
+$('#nav').addEventListener('click',e=>{if(e.target.dataset.t==='ret'){drawRetList();drawRetHist();drawRetForm()}});
+const _ra=renderAll;renderAll=()=>{_ra();drawRetList();drawRetHist()};
+/* expiry report; items without expiry (devices etc.) are stored with 9999-12-31 and never listed */
+const NOEXP='9999-12-31',ld=n=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4+n*864e5).toISOString().slice(0,10);
+document.querySelectorAll('#fm [name=no],#fm [name=exp],#fb [name=no],#fb [name=exp]').forEach(x=>x.required=false);
+let XR=[];
+function renderExr(){if(!U||U.role!=='owner')return;if(!$('#xd').value)$('#xd').value=ld(90);
+ const lim=$('#xd').value,inc=$('#xi').checked,t=today();XR=[];
+ S.meds.forEach(m=>m.b.forEach(b=>{if(b.qty>0&&b.exp!==NOEXP&&b.exp<=lim&&(inc||b.exp>=t))XR.push({m,b})}));
+ XR.sort((a,b)=>a.b.exp<b.b.exp?-1:a.b.exp>b.b.exp?1:a.m.name.localeCompare(b.m.name));
+ const units=XR.reduce((a,x)=>a+x.b.qty,0),val=XR.reduce((a,x)=>a+x.b.qty*x.b.cost,0);
+ $('#xk').innerHTML=`<div class="kpi"><small>ব্যাচ সংখ্যা</small><b>${bn(XR.length)}</b></div><div class="kpi"><small>মোট পরিমাণ</small><b>${bn(units)}</b></div><div class="kpi pf"><small>মোট মূল্য (ক্রয়মূল্যে)</small><b>${tk(val)}</b></div>`;
+ $('#xl').innerHTML=XR.map(({m,b})=>{const d=Math.round((Date.parse(b.exp)-Date.parse(t))/864e5);return `<tr><td><b>${esc(m.name)}</b><small>${esc(catL(m.cat||'Other'))}</small></td><td data-l="ব্যাচ">${esc(b.no)}</td><td data-l="মেয়াদের তারিখ">${esc(b.exp)}</td><td data-l="বাকি দিন">${d<0?'<span class="tag bad">মেয়াদ শেষ</span>':bn(d)}</td><td data-l="পরিমাণ">${bn(b.qty)}</td><td data-l="মূল্য">${tk(b.qty*b.cost)}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">এই সময়ের মধ্যে কোনো আইটেম নেই</td></tr>'}
+$('#xd').onchange=renderExr;$('#xi').onchange=renderExr;
+$('#xq').onclick=e=>{const b=e.target.closest('[data-x]');if(!b)return;const n=+b.dataset.x;$('#xd').value=ld(n);if(n<0)$('#xi').checked=true;renderExr()};
+$('#xcsv').onclick=()=>{const q=s=>'"'+String(s).replace(/"/g,'""')+'"',rows=['name,company,category,batch,expiry,quantity,cost_each'].concat(XR.map(({m,b})=>[q(m.name),q(m.co||''),q(m.cat||''),q(b.no),b.exp,b.qty,b.cost].join(',')));const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));a.download='hurrama-expiry-'+today()+'.csv';a.click()};
+$('#nav').addEventListener('click',e=>{if(e.target.dataset.t==='exr')renderExr()});
+const _rb=renderAll;renderAll=()=>{_rb();renderExr()};
+/* catalog of generic names (not brands) by department, photos, extra departments */
+CATS.splice(CATS.findIndex(c=>c.k==='Women’s health')+1,0,{k:'Musculoskeletal & muscle relaxants',b:'হাড়, জয়েন্ট ও পেশি'},{k:'Urology & kidney',b:'মূত্রতন্ত্র ও কিডনি'},{k:'Oncology',b:'ক্যান্সার'},{k:'Hematology & anticoagulants',b:'রক্ত ও রক্ত জমাট'},{k:'Vaccines & immunology',b:'ভ্যাকসিন ও ইমিউনোলজি'},{k:'Anesthesia & emergency',b:'অবশ ও জরুরি ওষুধ'},{k:'Dental & oral medicine',b:'দাঁত ও মুখের ওষুধ'});
+const CAT={'Analgesic & antipyretic':'Paracetamol|Ibuprofen|Diclofenac|Naproxen|Aspirin|Ketorolac|Tramadol|Mefenamic acid|Etoricoxib|Celecoxib|Aceclofenac|Piroxicam|Nimesulide|Codeine|Diclofenac gel',
+'Antibiotic':'Amoxicillin|Amoxicillin + Clavulanic acid|Azithromycin|Clarithromycin|Ciprofloxacin|Levofloxacin|Ofloxacin|Cefixime|Cefuroxime|Ceftriaxone|Cefradine|Cefalexin|Cefpodoxime|Doxycycline|Tetracycline|Metronidazole|Tinidazole|Clindamycin|Cotrimoxazole|Nitrofurantoin|Gentamicin|Amikacin|Flucloxacillin|Ampicillin|Penicillin V|Erythromycin|Linezolid|Meropenem|Rifampicin|Isoniazid|Ethambutol|Pyrazinamide',
+'Gastrointestinal & antacid':'Omeprazole|Esomeprazole|Pantoprazole|Rabeprazole|Lansoprazole|Famotidine|Domperidone|Ondansetron|Metoclopramide|Aluminium + Magnesium hydroxide antacid|Sucralfate|Loperamide|Racecadotril|Lactulose|Bisacodyl|Simethicone|Hyoscine butylbromide|Mebeverine|Ispaghula husk|Mesalazine|Ursodeoxycholic acid|Zinc sulphate (diarrhea)',
+'Antihistamine & allergy':'Cetirizine|Levocetirizine|Fexofenadine|Loratadine|Desloratadine|Chlorpheniramine|Promethazine|Montelukast|Hydroxyzine|Bilastine',
+'Cardiovascular':'Amlodipine|Atenolol|Bisoprolol|Metoprolol|Propranolol|Carvedilol|Losartan|Telmisartan|Valsartan|Olmesartan|Enalapril|Ramipril|Lisinopril|Hydrochlorothiazide|Furosemide|Spironolactone|Atorvastatin|Rosuvastatin|Simvastatin|Clopidogrel|Aspirin 75 mg|Isosorbide mononitrate|Glyceryl trinitrate|Digoxin|Amiodarone|Ivabradine|Nifedipine|Ezetimibe|Fenofibrate',
+'Diabetes':'Metformin|Gliclazide|Glimepiride|Glibenclamide|Sitagliptin|Vildagliptin|Linagliptin|Empagliflozin|Dapagliflozin|Pioglitazone|Insulin (human)|Insulin glargine|Insulin aspart|Acarbose',
+'Respiratory & cough/cold':'Salbutamol|Levosalbutamol|Ipratropium|Budesonide|Beclometasone|Formoterol|Salmeterol + Fluticasone|Theophylline|Doxofylline|Ambroxol|Bromhexine|Acetylcysteine|Dextromethorphan|Guaifenesin|Pseudoephedrine|Xylometazoline nasal drops|Oxymetazoline|Saline nasal spray|Montelukast + Levocetirizine',
+'Vitamins & minerals':'Vitamin C|Vitamin D3|Vitamin B complex|Vitamin B12 (Methylcobalamin)|Folic acid|Calcium + Vitamin D3|Iron (Ferrous fumarate)|Iron + Folic acid|Zinc|Multivitamin + Minerals|Vitamin E|Vitamin A|Magnesium|Omega-3 fish oil|Biotin|Vitamin K',
+'Antifungal':'Fluconazole|Itraconazole|Terbinafine|Clotrimazole|Ketoconazole|Miconazole|Nystatin|Griseofulvin|Luliconazole',
+'Antiviral':'Acyclovir|Valacyclovir|Oseltamivir|Famciclovir|Tenofovir|Entecavir|Sofosbuvir|Lamivudine',
+'Antimalarial & antiparasitic':'Artemether + Lumefantrine|Chloroquine|Primaquine|Quinine|Albendazole|Mebendazole|Ivermectin|Praziquantel|Pyrantel pamoate|Permethrin 5%|Nitazoxanide|Secnidazole',
+'Dermatology':'Hydrocortisone cream|Betamethasone cream|Clobetasol|Mometasone|Mupirocin|Fusidic acid|Silver sulfadiazine|Benzoyl peroxide|Adapalene|Tretinoin|Calamine lotion|Salicylic acid|Urea cream|Tacrolimus ointment|Isotretinoin|Povidone-iodine ointment|Minoxidil|Zinc oxide cream',
+'Eye & ear':'Moxifloxacin eye drops|Ciprofloxacin eye drops|Carboxymethylcellulose eye drops|Timolol eye drops|Latanoprost|Tobramycin eye drops|Olopatadine eye drops|Ciprofloxacin ear drops|Clotrimazole ear drops|Ofloxacin ear drops|Prednisolone eye drops|Cyclopentolate',
+'Neurology & psychiatry':'Alprazolam|Clonazepam|Diazepam|Escitalopram|Sertraline|Fluoxetine|Amitriptyline|Mirtazapine|Olanzapine|Risperidone|Quetiapine|Haloperidol|Carbamazepine|Sodium valproate|Phenytoin|Levetiracetam|Lamotrigine|Gabapentin|Pregabalin|Levodopa + Carbidopa|Donepezil|Sumatriptan|Flunarizine|Betahistine|Zolpidem|Melatonin|Pramipexole',
+'Hormones & endocrine':'Levothyroxine|Carbimazole|Prednisolone|Dexamethasone|Methylprednisolone|Hydrocortisone tablets|Estradiol|Progesterone|Norethisterone|Medroxyprogesterone|Cabergoline|Desmopressin|Clomifene|Testosterone|Combined oral contraceptive pill|Levonorgestrel emergency contraceptive',
+'Oral rehydration & fluids':'ORS (oral rehydration salts)|Normal saline 0.9%|Ringer lactate|Dextrose 5%|Dextrose 10%|Potassium chloride syrup|Sodium bicarbonate|Distilled water for injection|Glucose powder',
+'Injection & IV':'Ceftriaxone injection|Ketorolac injection|Diclofenac injection|Ondansetron injection|Pantoprazole injection|Hydrocortisone injection|Dexamethasone injection|Adrenaline (epinephrine)|Atropine|Tranexamic acid injection|Vitamin B12 injection|Oxytocin|Furosemide injection|Metronidazole infusion|Paracetamol infusion|Chlorpheniramine injection|Promethazine injection|Diazepam injection',
+'Pediatric':'Paracetamol suspension|Ibuprofen suspension|Amoxicillin suspension|Azithromycin suspension|Cefixime suspension|Zinc dispersible tablet|Domperidone suspension|Cetirizine syrup|Salbutamol syrup|Multivitamin drops|Vitamin D drops|Iron drops|Simethicone drops|Gripe water|Lactulose syrup',
+'Women’s health':'Folic acid 5 mg|Iron + Folic acid (pregnancy)|Calcium (pregnancy)|Tranexamic acid tablet|Mefenamic acid (period pain)|Clotrimazole vaginal pessary|Metronidazole vaginal tablet|Dydrogesterone',
+'Musculoskeletal & muscle relaxants':'Thiocolchicoside|Tizanidine|Baclofen|Methocarbamol|Eperisone|Diclofenac + Paracetamol|Glucosamine + Chondroitin|Alendronate|Calcitriol|Allopurinol|Febuxostat|Colchicine|Methotrexate|Hydroxychloroquine|Diacerein',
+'Urology & kidney':'Tamsulosin|Finasteride|Dutasteride|Tolterodine|Solifenacin|Oxybutynin|Sildenafil|Tadalafil|Potassium citrate|Flavoxate|Sevelamer',
+'Oncology':'Tamoxifen|Letrozole|Anastrozole|Capecitabine|Imatinib|Cyclophosphamide|Bicalutamide|Hydroxyurea',
+'Hematology & anticoagulants':'Warfarin|Rivaroxaban|Apixaban|Dabigatran|Enoxaparin|Heparin|Vitamin K injection|Cilostazol|Pentoxifylline',
+'Vaccines & immunology':'BCG vaccine|Hepatitis B vaccine|Tetanus toxoid vaccine|MMR vaccine|Rabies vaccine|Influenza vaccine|Typhoid vaccine|Pneumococcal vaccine|HPV vaccine|Anti-rabies immunoglobulin|Tetanus immunoglobulin|Azathioprine|Cyclosporine|Mycophenolate',
+'Anesthesia & emergency':'Lidocaine 2%|Bupivacaine|Ketamine|Propofol|Midazolam|Neostigmine|Naloxone|Dopamine|Noradrenaline|Activated charcoal|Glucagon|Flumazenil',
+'Dental & oral medicine':'Chlorhexidine mouthwash|Benzydamine mouthwash|Choline salicylate gel|Triamcinolone oral paste|Metronidazole + Chlorhexidine gel|Clove oil|Lignocaine dental gel',
+'First aid & dressings':'Adhesive bandage (band-aid)|Crepe bandage|Elastic bandage|Gauze roll|Gauze swab|Absorbent cotton|Micropore surgical tape|Antiseptic cream|Antiseptic liquid|Povidone-iodine solution|Hydrogen peroxide|Surgical spirit|Burn dressing|Wound dressing pad|Triangular bandage|Eye pad|Cotton buds|First aid kit|Disposable syringe 3 ml|Disposable syringe 5 ml|IV cannula|Urine bag|Surgical blade|Suture material',
+'Health devices':'Digital thermometer|Infrared thermometer|Blood pressure monitor (BPM)|Glucometer|Glucometer test strips|Lancets|Pulse oximeter|Nebulizer machine|Weight scale (digital)|Stethoscope|Steam inhaler',
+'Supports & therapy aids':'Knee cap|Lumbar (waist) belt|Cervical collar (neck belt)|Ankle support|Wrist support|Elbow support|Ice bag|Hot water bag|Walking stick|Wheelchair|Compression stockings|Heating pad|Arm sling|Shoulder support',
+'Oral & personal care':'Toothpaste|Toothbrush|Mouthwash|Dental floss|Antiseptic soap|Face wash|Moisturizer|Body lotion|Shampoo|Anti-dandruff shampoo|Sunscreen|Lip balm|Deodorant|Hair oil|Talcum powder|Nail clipper',
+'Feminine hygiene':'Sanitary pad|Panty liner|Intimate wash|Menstrual cup|Tampon',
+'Shaving & grooming':'Shaving cream|Razor|After-shave lotion|Shaving foam',
+'Hand hygiene & tissues':'Hand wash|Hand sanitizer|Tissue paper|Wet wipes|Face tissue box',
+'Baby care':'Baby diaper|Baby wipes|Baby shampoo|Baby soap|Baby lotion|Baby powder|Feeding bottle|Pacifier|Baby oil|Diaper rash cream|Nasal aspirator|Baby nail clipper',
+'Baby food & formula':'Infant formula (0-6 months)|Follow-on formula (6-12 months)|Growing-up milk|Infant cereal|Baby food puree',
+'Maternity care':'Maternity pad|Breast pump|Nipple cream|Maternity belt|Nursing pads|Stretch mark cream',
+'Supplements & protein':'Multivitamin tablets|Whey protein powder|Vitamin C effervescent tablets|Calcium supplement|Omega-3 capsules|Probiotic capsules|Iron supplement|Zinc supplement',
+'Health drinks':'Malted health drink|Chocolate malt drink|Pediatric nutrition drink|Diabetic nutrition drink|Energy bar|Electrolyte drink|Protein shake|Elderly nutrition drink',
+'Family planning & test kits':'Condom|Pregnancy test kit|Ovulation test kit|Dengue NS1 test kit|COVID-19 antigen test kit|Malaria rapid test kit|Urine test strips',
+'Vision accessories':'Reading glasses (ready-made)|Contact lens solution|Lubricating eye drops|Eye wash|Spectacle cleaning spray|Contact lens case',
+'Mosquito repellents':'Mosquito coil|Aerosol insecticide spray|Mosquito repellent cream|Mosquito repellent lotion|Mosquito repellent patch|Electric mosquito mat',
+'Masks & gloves':'Surgical face mask|N95 respirator|Latex gloves|Nitrile gloves|Face shield|Disposable head cap|Disposable apron'};
+const CATALOG=[];Object.keys(CAT).forEach(k=>CAT[k].split('|').forEach(n=>CATALOG.push({n,c:k})));
+$('#cq').oninput=()=>{const q=$('#cq').value.trim().toLowerCase();if(!q){$('#cr').innerHTML='';return}
+ const hit=CATALOG.map((x,i)=>[x,i]).filter(([x])=>(x.n+' '+x.c+' '+((CATS.find(c=>c.k===x.c)||{}).b||'')).toLowerCase().includes(q)).slice(0,15);
+ $('#cr').innerHTML=hit.map(([x,i])=>`<button class="rs" data-ci="${i}"><span><b>${esc(x.n)}</b><small>${esc(catL(x.c))}</small></span></button>`).join('')||'<p class="empty">ক্যাটালগে নেই, নিচের ফর্মে নিজে লিখুন</p>'};
+$('#cr').onclick=e=>{const b=e.target.closest('[data-ci]');if(!b)return;const x=CATALOG[+b.dataset.ci],f=$('#fm');
+ f.closest('details').open=true;f.elements.name.value=x.n;f.elements.gen.value=x.n;$('#fcat').value=x.c;f.scrollIntoView({behavior:'smooth',block:'start'});f.elements.bc.focus()};
+let PH='',PHID=0;
+function shrink(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,160/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.6))};im.src=r.result};r.readAsDataURL(file)}
+$('#fm').querySelector('.g').insertAdjacentHTML('beforeend','<label><span>ছবি (ঐচ্ছিক)</span><input type="file" id="fph" accept="image/*"><img id="fpv" alt="" hidden></label>');
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="fph2" accept="image/*" hidden>');
+$('#fph').onchange=e=>{const f=e.target.files[0];PH='';$('#fpv').hidden=true;if(f)shrink(f,d=>{PH=d;$('#fpv').src=d;$('#fpv').hidden=false})};
+const _fo=$('#fm').onsubmit;$('#fm').onsubmit=function(e){const n=S.meds.length;_fo.call(this,e);if(S.meds.length>n){if(PH){S.meds[S.meds.length-1].img=PH;save()}PH='';$('#fpv').hidden=true}};
+$('#stk').onclick=e=>{const b=e.target.closest('[data-ph]');if(!b)return;PHID=+b.dataset.ph;$('#fph2').click()};
+$('#fph2').onchange=e=>{const f=e.target.files[0];if(f)shrink(f,d=>{const m=med(PHID);if(m){m.img=d;audit('photo set');save();renderAll()}});e.target.value=''};
+/* big catalog import (stored in IndexedDB), search any item, department icons */
+let BIG=[],RES=[];
+var ICO={tab:'<rect x="6" y="18" width="36" height="14" rx="7" transform="rotate(-35 24 25)" fill="C"/><rect x="24" y="18" width="18" height="14" rx="7" transform="rotate(-35 24 25)" fill="#fff" opacity=".85"/>',syr:'<rect x="18" y="6" width="12" height="7" rx="2" fill="C"/><rect x="14" y="13" width="20" height="30" rx="5" fill="C"/><rect x="17" y="22" width="14" height="12" rx="2" fill="#fff" opacity=".85"/>',inj:'<rect x="21" y="6" width="6" height="8" fill="C"/><rect x="16" y="14" width="16" height="22" rx="3" fill="C"/><rect x="22" y="36" width="4" height="9" fill="C"/><rect x="19" y="20" width="10" height="3" fill="#fff" opacity=".85"/>',tube:'<path d="M12 8h24l-4 32H16z" fill="C"/><rect x="18" y="40" width="12" height="6" rx="1" fill="C"/><rect x="17" y="16" width="14" height="8" rx="2" fill="#fff" opacity=".85"/>',drop:'<rect x="19" y="4" width="10" height="8" rx="2" fill="C"/><path d="M16 12h16v8l3 6v15a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3V26l3-6z" fill="C"/><circle cx="24" cy="33" r="4" fill="#fff" opacity=".85"/>',dev:'<rect x="9" y="6" width="30" height="36" rx="6" fill="C"/><rect x="14" y="11" width="20" height="14" rx="2" fill="#fff" opacity=".85"/><circle cx="24" cy="34" r="4" fill="#fff" opacity=".85"/>',band:'<rect x="4" y="17" width="40" height="14" rx="7" transform="rotate(-30 24 24)" fill="C"/><rect x="17" y="17" width="14" height="14" transform="rotate(-30 24 24)" fill="#fff" opacity=".85"/>',box:'<rect x="8" y="14" width="32" height="28" rx="4" fill="C"/><rect x="8" y="8" width="32" height="8" rx="3" fill="C" opacity=".7"/><path d="M24 22v14M17 29h14" stroke="#fff" stroke-width="4" stroke-linecap="round"/>'};
+const icoKind=k=>/Injection|Vaccines|Anesthesia/.test(k)?'inj':/Dermatology|Dental/.test(k)?'tube':/Eye|Vision/.test(k)?'drop':/devices|Supports/.test(k)?'dev':/First aid/.test(k)?'band':/Pediatric|Oral rehydration|Health drinks|Baby food/.test(k)?'syr':/Baby care|Maternity|Feminine|Hand hygiene|Shaving|personal care|Mosquito|Masks|Family planning|Supplements/.test(k)?'box':'tab';
+function ico(k){if(!ICO)return '';k=k||'Other';const i=Math.max(0,CATS.findIndex(c=>c.k===k)),col=['#0E5A4C','#1F7A8C','#8A5200','#5B4B8A','#B42318','#146C43'][i%6];return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#E3F0EC"/>'+ICO[icoKind(k)].replace(/fill="C"/g,'fill="'+col+'"')+'</svg>')}
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('hp_cat',1);r.onupgradeneeded=()=>r.result.createObjectStore('c');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbSet=async v=>{const d=await idb();return new Promise((res,rej)=>{const t=d.transaction('c','readwrite');t.objectStore('c').put(v,'big');t.oncomplete=res;t.onerror=()=>rej(t.error)})};
+const idbGet=async()=>{const d=await idb();return new Promise(res=>{const q=d.transaction('c').objectStore('c').get('big');q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([])})};
+const bkey=x=>(x.n+' '+x.g+' '+x.co).toLowerCase();
+const note=()=>{$('#bign').textContent=BIG.length?(L==='bn'?'আমদানি করা তালিকায় '+bn(BIG.length)+'টি আইটেম আছে':BIG.length+' imported items available'):''};
+function parseCSV(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else if(ch==='"')q=true;else if(ch===','||ch==='\t'){r.push(c);c=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))rows.push(r);r=[]}else c+=ch}if(c||r.length){r.push(c);if(r.some(x=>x.trim()))rows.push(r)}return rows}
+function toRows(text){const R=parseCSV(text);if(!R.length)return[];const h=R[0].map(x=>x.trim().toLowerCase()),iG=h.findIndex(x=>x.includes('generic')),iN=h.findIndex((x,i)=>i!==iG&&['brand','name','medicine','product','item'].some(k=>x.includes(k)));
+ let ix={N:iN,G:iG,C:h.findIndex(x=>['company','manufactur','maker'].some(k=>x.includes(k))),S:h.findIndex(x=>x.includes('strength')),F:h.findIndex(x=>x.includes('form')),K:h.findIndex(x=>['categor','class','department','therap'].some(k=>x.includes(k)))},body=R.slice(1);
+ if(iN<0&&iG<0){ix={N:0,G:1,C:2,S:3,F:4,K:5};body=R}
+ const g=(r,i)=>i>=0&&r[i]?String(r[i]).trim():'',seen=new Set(),out=[];
+ for(const r of body){const n=g(r,ix.N)||g(r,ix.G);if(!n)continue;const o={n,g:g(r,ix.G)||n,co:g(r,ix.C),s:g(r,ix.S),f:g(r,ix.F),c:g(r,ix.K)},k=(o.n+'|'+o.s+'|'+o.co).toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(o)}return out}
+$('#bigf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rows=toRows(await f.text());if(!rows.length)return toast('ফাইলে কোনো আইটেম পাওয়া যায়নি');BIG=rows.map(x=>({...x,k:bkey(x)}));note();try{if(window.indexedDB)await idbSet(rows)}catch(x){toast('তালিকা সংরক্ষণ করা যায়নি');return}toast('তালিকা যোগ হয়েছে')};
+$('#bigx').onclick=()=>{BIG=[];note();try{if(window.indexedDB)idbSet([])}catch(x){}};
+try{if(window.indexedDB)idbGet().then(a=>{BIG=a.map(x=>({...x,k:bkey(x)}));note()}).catch(()=>{})}catch(x){}
+const catOf=x=>CATS.some(c=>c.k===x.c)?x.c:((CATALOG.find(y=>y.n.toLowerCase()===String(x.g).toLowerCase())||{}).c||'');
+$('#cq').oninput=()=>{const raw=$('#cq').value.trim(),q=raw.toLowerCase();RES=[];if(!q){$('#cr').innerHTML='';return}
+ for(const x of CATALOG){if(RES.length>=12)break;if((x.n+' '+x.c+' '+((CATS.find(c=>c.k===x.c)||{}).b||'')).toLowerCase().includes(q))RES.push({n:x.n,g:x.n,c:x.c,co:'',s:'',f:''})}
+ for(const x of BIG){if(RES.length>=30)break;if(x.k.includes(q))RES.push(x)}
+ $('#cr').innerHTML=RES.map((x,i)=>`<button class="rs" data-cx="${i}"><span><img class="th" src="${ico(catOf(x))}" alt=""><b>${esc(x.n)}</b><small>${esc([x.g!==x.n?x.g:'',x.co,[x.s,x.f].filter(Boolean).join(' ')].filter(Boolean).join(' / '))}</small></span></button>`).join('')+`<button class="rs" data-new="1"><span><b>"${esc(raw)}"</b><small>নতুন আইটেম হিসেবে যোগ করুন</small></span></button>`};
+$('#cr').onclick=e=>{const b=e.target.closest('[data-cx],[data-new]');if(!b)return;const f=$('#fm');let n,g='',co='',c='';
+ if(b.dataset.new){n=$('#cq').value.trim()}else{const x=RES[+b.dataset.cx];n=x.n+(x.s&&!x.n.toLowerCase().includes(x.s.toLowerCase())?' '+x.s:'');g=x.g;co=x.co;c=catOf(x)}
+ f.closest('details').open=true;f.elements.name.value=n;f.elements.gen.value=g;f.elements.co.value=co;if(c)$('#fcat').value=c;f.scrollIntoView({behavior:'smooth',block:'start'});f.elements.bc.focus()};
+/* drug index: search by name or by use, then add to stock */
+const TAGS={};'pain:Pain|ব্যথা;fever:Fever|জ্বর;inflam:Inflammation|প্রদাহ;arth:Arthritis & joint pain|বাত ও জয়েন্টের ব্যথা;menses:Period problems|মাসিকের সমস্যা;clot:Blood clots & heart protection|রক্ত জমাট ও হার্ট সুরক্ষা;heart:Heart disease|হৃদরোগ;bact:Bacterial infections|ব্যাকটেরিয়া সংক্রমণ;resp_inf:Chest & throat infections|বুক ও গলার সংক্রমণ;uti:Urinary tract infection|মূত্রনালীর সংক্রমণ;gi_inf:Intestinal infection|পেটের সংক্রমণ;skin_inf:Skin infection|ত্বকের সংক্রমণ;dental:Teeth & gum problems|দাঁত ও মাড়ির সমস্যা;tb:Tuberculosis|যক্ষ্মা;acid:Acidity & ulcer|এসিডিটি ও আলসার;reflux:Heartburn|বুকজ্বালা;nausea:Nausea & vomiting|বমি বমি ভাব;diarrhoea:Diarrhoea|ডায়রিয়া;constip:Constipation|কোষ্ঠকাঠিন্য;gas:Gas & bloating|গ্যাস ও পেট ফাঁপা;colic:Infant colic|শিশুর পেটব্যথা;ibs:Stomach cramps|পেটের ব্যথা ও খিঁচুনি;ibd:Ulcerative colitis|আলসারেটিভ কোলাইটিস;liver:Liver & gallstones|লিভার ও পিত্তথলি;allergy:Allergy|অ্যালার্জি;rhinitis:Runny nose & sneezing|সর্দি ও হাঁচি;asthma:Asthma & COPD|হাঁপানি ও সিওপিডি;bp:High blood pressure|উচ্চ রক্তচাপ;hf:Heart failure & swelling|হার্ট ফেইলিউর ও ফোলা;chol:High cholesterol|উচ্চ কোলেস্টেরল;angina:Chest pain (angina)|বুকে ব্যথা (অ্যানজাইনা);arrhythmia:Irregular heartbeat|অনিয়মিত হৃদস্পন্দন;dm:Diabetes|ডায়াবেটিস;cough:Cough|কাশি;cold:Cold & blocked nose|সর্দি ও নাক বন্ধ;vit:Vitamin deficiency|ভিটামিনের ঘাটতি;anaemia:Anaemia|রক্তশূন্যতা;bone:Bones & calcium|হাড় ও ক্যালসিয়াম;preg:Pregnancy supplements|গর্ভাবস্থার পুষ্টি;fungal:Fungal infection|ছত্রাক সংক্রমণ;herpes:Herpes|হারপিস;flu:Influenza|ইনফ্লুয়েঞ্জা;hep:Hepatitis B/C|হেপাটাইটিস বি/সি;malaria:Malaria|ম্যালেরিয়া;worms:Worms|কৃমি;scabies:Scabies & lice|খোস-পাঁচড়া ও উকুন;eczema:Eczema & dermatitis|একজিমা ও চর্মপ্রদাহ;skin:Skin conditions|চর্মরোগ;wound:Wounds & burns|ক্ষত ও পোড়া;acne:Acne|ব্রণ;hair:Hair loss|চুল পড়া;eye_inf:Eye infection|চোখের সংক্রমণ;dryeye:Dry eyes|চোখ শুষ্কতা;glauc:Glaucoma|গ্লুকোমা;eye_exam:Eye examination|চোখ পরীক্ষা;ear:Ear infection|কানের সংক্রমণ;anx:Anxiety|উদ্বেগ;depr:Depression|বিষণ্ণতা;psych:Psychosis & bipolar|মানসিক রোগ;epil:Epilepsy|মৃগী;neuropain:Nerve pain|স্নায়ুর ব্যথা;park:Parkinson’s disease|পার্কিনসন্স;dement:Dementia|ডিমেনশিয়া;migraine:Migraine|মাইগ্রেন;vertigo:Vertigo|মাথা ঘোরা;sleep:Insomnia|অনিদ্রা;thyroid:Thyroid|থাইরয়েড;hormone:Hormone therapy|হরমোন থেরাপি;contra:Contraception|জন্মনিয়ন্ত্রণ;infert:Fertility|বন্ধ্যাত্ব;bladder:Bladder problems|মূত্রথলির সমস্যা;dehyd:Dehydration|পানিশূন্যতা;fluid:IV fluids|স্যালাইন ও তরল;hypok:Low potassium|পটাশিয়ামের ঘাটতি;emerg:Emergency|জরুরি অবস্থা;bleed:Bleeding|রক্তপাত;labour:Labour & postpartum|প্রসব ও প্রসবোত্তর;vag:Vaginal infection|যোনির সংক্রমণ;muscle:Muscle spasm|পেশির টান;osteo:Osteoporosis|অস্টিওপোরোসিস;gout:Gout|গেঁটেবাত;immune:Immune suppression|রোগপ্রতিরোধ দমন;prostate:Prostate|প্রস্টেট;ed:Erectile dysfunction|ইরেকটাইল ডিসফাংশন;kidney:Kidney problems|কিডনির সমস্যা;cancer:Cancer|ক্যান্সার;vaccine:Vaccination|টিকা;anaes:Anaesthesia|অবশ করা;poison:Poisoning|বিষক্রিয়া;antisep:Antiseptic|জীবাণুনাশক;bpmon:Blood pressure check|রক্তচাপ মাপা;sugarmon:Blood sugar check|রক্তে সুগার মাপা;tempmon:Temperature check|তাপমাত্রা মাপা;o2mon:Oxygen level check|অক্সিজেন মাত্রা মাপা;nebu:Breathing treatment|শ্বাসের চিকিৎসা;pregtest:Pregnancy test|গর্ভধারণ পরীক্ষা'.split(';').forEach(s=>{const i=s.indexOf(':'),[e,b]=s.slice(i+1).split('|');TAGS[s.slice(0,i)]=[e,b]});
+const USE={};const u=(t,n)=>n.split('|').forEach(x=>{const k=x.toLowerCase();USE[k]=[...new Set([...(USE[k]||[]),...t.split(',')])]});
+u('pain,fever','Paracetamol|Paracetamol suspension|Paracetamol infusion|Ibuprofen suspension');u('pain,inflam,arth','Ibuprofen|Diclofenac|Naproxen|Ketorolac|Etoricoxib|Celecoxib|Aceclofenac|Piroxicam|Nimesulide|Diclofenac gel|Diclofenac injection|Ketorolac injection|Diclofenac + Paracetamol|Diacerein');u('pain,menses','Mefenamic acid|Mefenamic acid (period pain)');u('pain,fever,clot','Aspirin');u('clot,heart','Aspirin 75 mg|Clopidogrel');u('pain','Tramadol');u('pain,cough','Codeine');
+u('bact,resp_inf','Amoxicillin|Amoxicillin + Clavulanic acid|Azithromycin|Clarithromycin|Cefuroxime|Cefpodoxime|Cefixime|Erythromycin|Doxycycline|Levofloxacin|Penicillin V|Ampicillin|Flucloxacillin|Cefalexin|Cefradine|Tetracycline|Linezolid|Meropenem|Ceftriaxone|Ceftriaxone injection|Gentamicin|Amikacin|Amoxicillin suspension|Azithromycin suspension|Cefixime suspension');u('bact,uti','Ciprofloxacin|Ofloxacin|Nitrofurantoin|Cotrimoxazole');u('bact,gi_inf','Metronidazole|Tinidazole|Secnidazole|Metronidazole infusion');u('bact,skin_inf,dental','Clindamycin');u('tb','Rifampicin|Isoniazid|Ethambutol|Pyrazinamide');
+u('acid,reflux','Omeprazole|Esomeprazole|Pantoprazole|Rabeprazole|Lansoprazole|Famotidine|Pantoprazole injection|Aluminium + Magnesium hydroxide antacid|Sucralfate');u('nausea','Domperidone|Ondansetron|Metoclopramide|Ondansetron injection|Domperidone suspension|Promethazine');u('diarrhoea','Loperamide|Racecadotril|Zinc sulphate (diarrhea)|Zinc dispersible tablet');u('constip','Lactulose|Bisacodyl|Ispaghula husk|Lactulose syrup');u('gas','Simethicone');u('colic,gas','Simethicone drops|Gripe water');u('ibs','Hyoscine butylbromide|Mebeverine');u('ibd','Mesalazine');u('liver','Ursodeoxycholic acid');
+u('allergy,rhinitis','Cetirizine|Levocetirizine|Fexofenadine|Loratadine|Desloratadine|Chlorpheniramine|Bilastine|Cetirizine syrup|Hydroxyzine|Promethazine|Chlorpheniramine injection|Promethazine injection');u('asthma,allergy','Montelukast|Montelukast + Levocetirizine');
+u('bp','Amlodipine|Atenolol|Bisoprolol|Metoprolol|Propranolol|Carvedilol|Losartan|Telmisartan|Valsartan|Olmesartan|Enalapril|Ramipril|Lisinopril|Hydrochlorothiazide|Nifedipine');u('hf','Furosemide|Spironolactone|Furosemide injection|Digoxin');u('chol','Atorvastatin|Rosuvastatin|Simvastatin|Ezetimibe|Fenofibrate');u('angina','Isosorbide mononitrate|Glyceryl trinitrate|Ivabradine');u('arrhythmia','Amiodarone|Digoxin');u('dm','Metformin|Gliclazide|Glimepiride|Glibenclamide|Sitagliptin|Vildagliptin|Linagliptin|Empagliflozin|Dapagliflozin|Pioglitazone|Insulin (human)|Insulin glargine|Insulin aspart|Acarbose');
+u('asthma','Salbutamol|Levosalbutamol|Ipratropium|Budesonide|Beclometasone|Formoterol|Salmeterol + Fluticasone|Theophylline|Doxofylline|Salbutamol syrup');u('cough','Ambroxol|Bromhexine|Acetylcysteine|Dextromethorphan|Guaifenesin');u('cold','Pseudoephedrine|Xylometazoline nasal drops|Oxymetazoline|Saline nasal spray');
+u('vit','Vitamin C|Vitamin D3|Vitamin B complex|Vitamin B12 (Methylcobalamin)|Multivitamin + Minerals|Vitamin E|Vitamin A|Magnesium|Biotin|Vitamin K|Omega-3 fish oil|Zinc|Multivitamin drops|Vitamin D drops|Multivitamin tablets|Vitamin C effervescent tablets|Omega-3 capsules|Zinc supplement|Vitamin B12 injection');u('anaemia','Iron (Ferrous fumarate)|Iron + Folic acid|Folic acid|Iron drops|Iron supplement');u('bone','Calcium + Vitamin D3|Calcium (pregnancy)|Calcium supplement|Vitamin D3');u('preg','Folic acid 5 mg|Iron + Folic acid (pregnancy)|Calcium (pregnancy)|Folic acid');
+u('fungal','Fluconazole|Itraconazole|Terbinafine|Clotrimazole|Ketoconazole|Miconazole|Nystatin|Griseofulvin|Luliconazole|Clotrimazole ear drops|Clotrimazole vaginal pessary');u('herpes','Acyclovir|Valacyclovir|Famciclovir');u('flu','Oseltamivir');u('hep','Tenofovir|Entecavir|Sofosbuvir|Lamivudine');u('malaria','Artemether + Lumefantine|Chloroquine|Primaquine|Quinine');u('worms','Albendazole|Mebendazole|Ivermectin|Praziquantel|Pyrantel pamoate|Nitazoxanide');u('scabies','Permethrin 5%|Ivermectin');
+u('inflam,skin,eczema','Hydrocortisone cream|Betamethasone cream|Clobetasol|Mometasone|Tacrolimus ointment');u('skin_inf','Mupirocin|Fusidic acid');u('wound','Silver sulfadiazine|Povidone-iodine ointment|Zinc oxide cream|Gauze roll|Gauze swab|Absorbent cotton|Adhesive bandage (band-aid)|Crepe bandage|Elastic bandage|Micropore surgical tape|Wound dressing pad|Burn dressing|Antiseptic cream|Antiseptic liquid|Povidone-iodine solution|Hydrogen peroxide|Surgical spirit');u('antisep','Antiseptic cream|Antiseptic liquid|Povidone-iodine solution|Hydrogen peroxide|Surgical spirit');u('acne','Benzoyl peroxide|Adapalene|Tretinoin|Isotretinoin');u('skin','Calamine lotion|Salicylic acid|Urea cream');u('hair','Minoxidil');
+u('eye_inf','Moxifloxacin eye drops|Ciprofloxacin eye drops|Tobramycin eye drops');u('dryeye','Carboxymethylcellulose eye drops|Lubricating eye drops');u('glauc','Timolol eye drops|Latanoprost');u('allergy','Olopatadine eye drops');u('ear','Ciprofloxacin ear drops|Ofloxacin ear drops');u('inflam','Prednisolone eye drops');u('eye_exam','Cyclopentolate');
+u('anx','Alprazolam|Clonazepam|Diazepam|Hydroxyzine');u('depr','Escitalopram|Sertraline|Fluoxetine|Amitriptyline|Mirtazapine');u('psych','Olanzapine|Risperidone|Quetiapine|Haloperidol');u('epil','Carbamazepine|Sodium valproate|Phenytoin|Levetiracetam|Lamotrigine|Clonazepam|Diazepam injection');u('neuropain','Gabapentin|Pregabalin|Carbamazepine|Amitriptyline');u('park','Levodopa + Carbidopa|Pramipexole');u('dement','Donepezil');u('migraine','Sumatriptan|Flunarizine');u('vertigo','Betahistine|Flunarizine');u('sleep','Zolpidem|Melatonin');
+u('thyroid','Levothyroxine|Carbimazole');u('inflam,allergy','Prednisolone|Dexamethasone|Methylprednisolone|Hydrocortisone tablets|Dexamethasone injection|Hydrocortisone injection');u('hormone','Estradiol|Progesterone|Testosterone|Medroxyprogesterone');u('menses','Norethisterone|Dydrogesterone|Tranexamic acid tablet');u('contra','Combined oral contraceptive pill|Levonorgestrel emergency contraceptive|Condom');u('infert','Clomifene|Cabergoline');u('bladder','Desmopressin|Tolterodine|Solifenacin|Oxybutynin|Flavoxate');
+u('dehyd','ORS (oral rehydration salts)|Glucose powder');u('fluid','Normal saline 0.9%|Ringer lactate|Dextrose 5%|Dextrose 10%|Distilled water for injection');u('hypok','Potassium chloride syrup');u('acid','Sodium bicarbonate');u('emerg','Adrenaline (epinephrine)|Atropine|Hydrocortisone injection|Neostigmine|Naloxone|Dopamine|Noradrenaline|Flumazenil|Glucagon');u('bleed','Tranexamic acid injection|Tranexamic acid tablet');u('labour','Oxytocin');u('vag','Metronidazole vaginal tablet|Clotrimazole vaginal pessary');
+u('muscle','Thiocolchicoside|Tizanidine|Baclofen|Methocarbamol|Eperisone');u('arth,pain','Glucosamine + Chondroitin');u('osteo','Alendronate|Calcitriol');u('gout','Allopurinol|Febuxostat|Colchicine');u('arth,immune','Methotrexate|Hydroxychloroquine');u('prostate','Tamsulosin|Finasteride|Dutasteride');u('ed','Sildenafil|Tadalafil');u('kidney','Potassium citrate|Sevelamer');u('cancer','Tamoxifen|Letrozole|Anastrozole|Capecitabine|Imatinib|Cyclophosphamide|Bicalutamide|Hydroxyurea');u('clot','Warfarin|Rivaroxaban|Apixaban|Dabigatran|Enoxaparin|Heparin|Cilostazol|Pentoxifylline');
+u('vaccine','BCG vaccine|Hepatitis B vaccine|Tetanus toxoid vaccine|MMR vaccine|Rabies vaccine|Influenza vaccine|Typhoid vaccine|Pneumococcal vaccine|HPV vaccine|Anti-rabies immunoglobulin|Tetanus immunoglobulin');u('immune','Azathioprine|Cyclosporine|Mycophenolate');u('anaes','Lidocaine 2%|Bupivacaine|Ketamine|Propofol|Midazolam|Lignocaine dental gel');u('poison','Activated charcoal|Naloxone|Flumazenil');u('dental','Chlorhexidine mouthwash|Benzydamine mouthwash|Choline salicylate gel|Triamcinolone oral paste|Metronidazole + Chlorhexidine gel|Clove oil|Lignocaine dental gel');
+u('bpmon','Blood pressure monitor (BPM)');u('sugarmon','Glucometer|Glucometer test strips|Lancets');u('tempmon','Digital thermometer|Infrared thermometer');u('o2mon','Pulse oximeter');u('nebu','Nebulizer machine|Steam inhaler');u('pregtest','Pregnancy test kit');
+const tagL=t=>(TAGS[t]||[t,t])[L==='bn'?1:0];let DX=[];
+function dxDraw(){const raw=$('#dq').value.trim(),q=raw.toLowerCase(),bnm=L==='bn';
+ $('#dch').innerHTML=['fever','pain','cough','cold','allergy','acid','diarrhoea','bact','bp','dm','vit','anaemia','skin','worms'].map(t=>`<button class="chip" data-dt="${t}">${esc(tagL(t))}</button>`).join('');
+ DX=[];if(!q){$('#dr').innerHTML='';return}
+ const tg=new Set(q.length>1?Object.keys(TAGS).filter(t=>TAGS[t].some(l=>l.toLowerCase().includes(q))):[]);
+ const tagsOf=x=>x.t||(x.t=USE[String(x.g).toLowerCase()]||USE[String(x.n).toLowerCase()]||[]);
+ const hit=x=>(x.k||bkey(x)).includes(q)||tagsOf(x).some(t=>tg.has(t));
+ for(const x of CATALOG){if(DX.length>=12)break;const o={n:x.n,g:x.n,c:x.c,co:'',s:'',f:''};if(hit(o)||(catL(x.c)+' '+x.c).toLowerCase().includes(q))DX.push(o)}
+ for(const x of BIG){if(DX.length>=30)break;if(hit(x))DX.push(x)}
+ $('#dr').innerHTML=DX.map((x,i)=>{const c=catOf(x),tg2=tagsOf(x),br=!x.co&&x.n===x.g&&i<10?BIG.filter(b=>String(b.g).toLowerCase()===x.n.toLowerCase()).slice(0,5).map(b=>b.n+(b.co?' ('+b.co+')':'')).join(', '):'';
+  return `<div class="dx"><img class="th" src="${ico(c)}" alt=""><div><b>${esc(x.n)}</b><small>${esc([x.g!==x.n?x.g:'',x.co,[x.s,x.f].filter(Boolean).join(' '),c?catL(c):''].filter(Boolean).join(' / '))}</small>${tg2.length?`<small>${bnm?'ব্যবহার':'Used for'}: ${esc(tg2.map(tagL).join(', '))}</small>`:''}${br?`<small>${bnm?'ব্র্যান্ড':'Brands'}: ${esc(br)}</small>`:''}</div><button class="btn s" data-dx="${i}">${bnm?'স্টকে যোগ করুন':'Add to stock'}</button></div>`}).join('')||`<p class="empty">${bnm?'কোনো ফলাফল নেই। তালিকায় না থাকলে স্টক ট্যাবে নিজে যোগ করুন।':'No results. If it is not listed, add it yourself in the Stock tab.'}</p>`}
+$('#dq').oninput=dxDraw;
+$('#dch').onclick=e=>{const t=e.target.dataset.dt;if(!t)return;$('#dq').value=tagL(t);dxDraw()};
+$('#dr').onclick=e=>{const b=e.target.closest('[data-dx]');if(!b)return;const x=DX[+b.dataset.dx];document.querySelector('[data-t=stock]').click();RES=[x];$('#cr').onclick({target:{closest:()=>({dataset:{cx:'0'}})}})};
+$('#nav').addEventListener('click',e=>{if(e.target.dataset.t==='dix')dxDraw()});
+const _rd=renderAll;renderAll=()=>{_rd();dxDraw()};
+/* search by use (department level), configurable low-stock level */
+const U_=(a,b)=>[a,b],USES={'Analgesic & antipyretic':U_('fever, headache, body ache, pain, toothache, period pain, inflammation','জ্বর, মাথাব্যথা, শরীর ব্যথা, ব্যথা, দাঁত ব্যথা, মাসিকের ব্যথা, প্রদাহ'),
+'Antibiotic':U_('bacterial infection, throat infection, urinary infection, chest infection, typhoid, tuberculosis, wound infection','ব্যাকটেরিয়া সংক্রমণ, গলার সংক্রমণ, প্রস্রাবের সংক্রমণ, বুকের সংক্রমণ, টাইফয়েড, যক্ষ্মা, ক্ষতের সংক্রমণ'),
+'Gastrointestinal & antacid':U_('gastric, acidity, heartburn, ulcer, nausea, vomiting, diarrhea, constipation, gas, bloating','গ্যাস্ট্রিক, অম্বল, বুক জ্বালা, আলসার, বমি বমি ভাব, বমি, ডায়রিয়া, কোষ্ঠকাঠিন্য, পেট ফাঁপা'),
+'Antihistamine & allergy':U_('allergy, itching, sneezing, runny nose, urticaria, hives, rhinitis','অ্যালার্জি, চুলকানি, হাঁচি, নাক দিয়ে পানি পড়া, শীতপিত্ত'),
+'Cardiovascular':U_('high blood pressure, hypertension, heart disease, angina, cholesterol, heart failure','উচ্চ রক্তচাপ, হৃদরোগ, বুকে ব্যথা, কোলেস্টেরল, হার্ট ফেইলিউর'),
+'Diabetes':U_('diabetes, high blood sugar, insulin','ডায়াবেটিস, উচ্চ রক্তে শর্করা, ইনসুলিন'),
+'Respiratory & cough/cold':U_('cough, cold, asthma, COPD, wheeze, nasal congestion, sinusitis, phlegm','কাশি, সর্দি, হাঁপানি, শ্বাসকষ্ট, নাক বন্ধ, সাইনাস, কফ'),
+'Vitamins & minerals':U_('vitamin deficiency, anemia, weakness, bone health, calcium deficiency','ভিটামিনের ঘাটতি, রক্তশূন্যতা, দুর্বলতা, হাড়ের স্বাস্থ্য, ক্যালসিয়ামের ঘাটতি'),
+'Antifungal':U_('fungal infection, ringworm, candidiasis, athlete foot, nail fungus','ছত্রাক সংক্রমণ, দাদ, ক্যান্ডিডা, নখের ছত্রাক'),
+'Antiviral':U_('viral infection, herpes, influenza, hepatitis, chickenpox, shingles','ভাইরাস সংক্রমণ, হারপিস, ফ্লু, হেপাটাইটিস, চিকেন পক্স, শিংলস'),
+'Antimalarial & antiparasitic':U_('malaria, worms, intestinal parasites, scabies, lice, amoebiasis','ম্যালেরিয়া, কৃমি, পেটের পরজীবী, খোসপাঁচড়া, উকুন, আমাশয়'),
+'Dermatology':U_('skin infection, eczema, dermatitis, acne, rash, burns, itching, hair loss','চর্মরোগ, একজিমা, ব্রণ, র‍্যাশ, পোড়া, চুলকানি, চুল পড়া'),
+'Eye & ear':U_('eye infection, dry eye, glaucoma, conjunctivitis, ear infection, ear pain','চোখের সংক্রমণ, চোখ শুকানো, গ্লুকোমা, চোখ ওঠা, কানের সংক্রমণ, কান ব্যথা'),
+'Neurology & psychiatry':U_('epilepsy, seizures, depression, anxiety, insomnia, migraine, parkinson, vertigo','মৃগী, খিঁচুনি, বিষণ্নতা, দুশ্চিন্তা, অনিদ্রা, মাইগ্রেন, পারিকনসন, মাথা ঘোরা'),
+'Hormones & endocrine':U_('thyroid, steroid, hormone therapy, contraception, menopause, infertility','থাইরয়েড, স্টেরয়েড, হরমোন থেরাপি, জন্মনিয়ন্ত্রণ, মেনোপজ, বন্ধ্যাত্ব'),
+'Oral rehydration & fluids':U_('dehydration, diarrhea, vomiting, electrolyte loss, IV fluid','পানিশূন্যতা, ডায়রিয়া, বমি, লবণ ঘাটতি, স্যালাইন'),
+'Injection & IV':U_('injectable medicines, emergency treatment, severe infection, severe pain','ইনজেকশন, জরুরি চিকিৎসা, গুরুতর সংক্রমণ, তীব্র ব্যথা'),
+'Pediatric':U_('children fever, child cough, infant colic, child diarrhea, child vitamins','শিশুর জ্বর, শিশুর কাশি, শিশুর কলিক, শিশুর ডায়রিয়া, শিশুর ভিটামিন'),
+'Women’s health':U_('pregnancy, heavy period, period pain, vaginal infection, menstrual problems','গর্ভাবস্থা, অতিরিক্ত রক্তপাত, মাসিকের ব্যথা, যোনিপথের সংক্রমণ'),
+'Musculoskeletal & muscle relaxants':U_('arthritis, joint pain, back pain, muscle spasm, gout, osteoporosis','বাত, জয়েন্টের ব্যথা, কোমর ব্যথা, পেশির টান, গাউট, হাড়ক্ষয়'),
+'Urology & kidney':U_('prostate, urinary problem, overactive bladder, kidney stone, erectile dysfunction','প্রস্টেট, প্রস্রাবের সমস্যা, কিডনি পাথর, পুরুষের যৌন দুর্বলতা'),
+'Oncology':U_('cancer, breast cancer, leukemia, prostate cancer','ক্যান্সার, স্তন ক্যান্সার, লিউকেমিয়া, প্রস্টেট ক্যান্সার'),
+'Hematology & anticoagulants':U_('blood clot, thrombosis, anticoagulant, stroke prevention, bleeding','রক্ত জমাট, থ্রম্বোসিস, স্ট্রোক প্রতিরোধ, রক্তক্ষরণ'),
+'Vaccines & immunology':U_('vaccination, immunization, rabies, tetanus, hepatitis B, transplant','টিকা, ভ্যাকসিন, জলাতঙ্ক, ধনুষ্টংকার, হেপাটাইটিস বি'),
+'Anesthesia & emergency':U_('anesthesia, local anesthetic, emergency, overdose, poisoning','অবশ করা, জরুরি চিকিৎসা, ওভারডোজ, বিষক্রিয়া'),
+'Dental & oral medicine':U_('toothache, gum disease, mouth ulcer, oral infection, dental pain','দাঁত ব্যথা, মাড়ির রোগ, মুখের ঘা, মুখের সংক্রমণ'),
+'First aid & dressings':U_('wound care, cuts, burns, dressing, bandage, antiseptic','ক্ষত, কাটা, পোড়া, ড্রেসিং, ব্যান্ডেজ, অ্যান্টিসেপটিক'),
+'Health devices':U_('blood pressure, blood sugar, temperature, oxygen level, nebulization, weight','রক্তচাপ, রক্তে শর্করা, তাপমাত্রা, অক্সিজেন, নেবুলাইজেশন, ওজন'),
+'Supports & therapy aids':U_('back pain, knee pain, neck pain, sprain, mobility, hot compress','কোমর ব্যথা, হাঁটুর ব্যথা, ঘাড় ব্যথা, মচকানো, সেঁক'),
+'Family planning & test kits':U_('contraception, pregnancy test, ovulation test, dengue test, covid test, malaria test','জন্মনিয়ন্ত্রণ, গর্ভাবস্থা পরীক্ষা, ডেঙ্গু পরীক্ষা, কোভিড পরীক্ষা'),
+'Mosquito repellents':U_('mosquito protection, dengue prevention, insect repellent','মশা প্রতিরোধ, ডেঙ্গু প্রতিরোধ'),
+'Supplements & protein':U_('weakness, muscle building, immunity, nutrition, bone health','দুর্বলতা, পেশি গঠন, রোগ প্রতিরোধ, পুষ্টি')};
+const usesOf=k=>{const u=USES[k];return u?(L==='bn'?u[1]:u[0]):''};
+const CMAP=new Map(CATALOG.map(x=>[x.n.toLowerCase(),x.c])),withCC=x=>(x.cc=CATS.some(c=>c.k===x.c)?x.c:(CMAP.get(String(x.g).toLowerCase())||''),x);
+$('#cq').oninput=()=>{const raw=$('#cq').value.trim(),q=raw.toLowerCase();RES=[];if(!q){$('#cr').innerHTML='';return}
+ const uc=new Set(q.length>2?CATS.filter(c=>(USES[c.k]||['','']).join(' ').toLowerCase().includes(q)).map(c=>c.k):[]);
+ const cap={};for(const x of CATALOG){if(RES.length>=40)break;const nm=(x.n+' '+x.c+' '+((CATS.find(c=>c.k===x.c)||{}).b||'')).toLowerCase().includes(q);if(nm||(uc.has(x.c)&&(cap[x.c]=(cap[x.c]||0)+1)<=6))RES.push({n:x.n,g:x.n,c:x.c,co:'',s:'',f:''})}
+ for(const x of BIG){if(RES.length>=45)break;if(x.cc===undefined)withCC(x);if(x.k.includes(q)||(x.cc&&uc.has(x.cc)&&((cap.b=cap.b||{})[x.cc]=(cap.b[x.cc]||0)+1)<=6))RES.push(x)}
+ $('#cr').innerHTML=(uc.size?'<small>শুধু সাধারণ রেফারেন্স, চিকিৎসা পরামর্শ নয়। ব্যবহারের আগে প্যাকেট ও ডাক্তারের নির্দেশ দেখুন।</small>':'')+RES.map((x,i)=>{const c=catOf(x);return `<button class="rs" data-cx="${i}"><span><img class="th" src="${ico(c)}" alt=""><b>${esc(x.n)}</b><small>${esc([x.g!==x.n?x.g:'',x.co,[x.s,x.f].filter(Boolean).join(' ')].filter(Boolean).join(' / '))}</small><small>${esc(usesOf(c))}</small></span></button>`}).join('')+`<button class="rs" data-new="1"><span><b>"${esc(raw)}"</b><small>নতুন আইটেম হিসেবে যোগ করুন</small></span></button>`};
+function lowOf(m){return m.min>=0&&m.min!==undefined&&m.min!==null?m.min:(S.cfg&&S.cfg.low!=null?S.cfg.low:10)}
+$('#lowg').onchange=()=>{S.cfg=S.cfg||{};S.cfg.low=Math.max(0,Math.floor(+$('#lowg').value)||0);audit('low-stock level '+S.cfg.low);save();renderAll()};
+$('#lowo').onchange=()=>renderStock();
+$('#stk').onchange=e=>{const id=e.target.dataset.lw;if(id==null)return;const m=med(id);if(!m)return;const v=Math.floor(+e.target.value);if(e.target.value===''||!(v>=0))delete m.min;else m.min=v;audit('low-stock level for '+m.name);save();renderAll()};
+const _rc=renderAll;renderAll=()=>{_rc();$('#lowg').value=lowOf({});const n=S.meds.filter(m=>avail(m)<=lowOf(m)).length;$('#lown').textContent=L==='bn'?bn(n)+'টি আইটেম কম স্টকে আছে':n+' items are low on stock'};
+Object.assign(USES,{'Oral & personal care':U_('oral hygiene, toothpaste, skin care, hair care, sunscreen','দাঁতের যত্ন, ত্বকের যত্ন, চুলের যত্ন, রোদ থেকে সুরক্ষা'),'Feminine hygiene':U_('periods, menstrual hygiene, intimate hygiene','মাসিক, মাসিকের স্বাস্থ্যবিধি'),'Shaving & grooming':U_('shaving, grooming','শেভিং, গ্রুমিং'),'Hand hygiene & tissues':U_('hand cleaning, sanitizing, tissue','হাত পরিষ্কার, স্যানিটাইজার, টিস্যু'),'Baby care':U_('baby skin care, diaper, baby hygiene, feeding','শিশুর ত্বকের যত্ন, ডায়াপার, শিশুর পরিচ্ছন্নতা'),'Baby food & formula':U_('infant feeding, formula milk, baby nutrition','শিশুর খাবার, ফর্মুলা মিল্ক, শিশুর পুষ্টি'),'Maternity care':U_('pregnancy, breastfeeding, postpartum, stretch marks','গর্ভাবস্থা, বুকের দুধ খাওয়ানো, প্রসব-পরবর্তী যত্ন'),'Health drinks':U_('nutrition, energy, recovery, diabetic nutrition, elderly nutrition','পুষ্টি, শক্তি, সুস্থতা, ডায়াবেটিস রোগীর পুষ্টি'),'Vision accessories':U_('reading glasses, contact lens care, dry eyes','পড়ার চশমা, কন্টাক্ট লেন্স, চোখ শুকানো'),'Masks & gloves':U_('infection protection, mask, gloves, hygiene','সংক্রমণ থেকে সুরক্ষা, মাস্ক, গ্লাভস')});
+showAuth();
+</script></body></html>
